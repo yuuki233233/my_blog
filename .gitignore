@@ -1,0 +1,60 @@
+# ===================== Obsidian 核心过滤（必写）=====================
+# Obsidian主配置/缓存/工作区（纯本地，上传无用还占空间）
+.obsidian/
+# 插件缓存/依赖包（体积大，无需同步）
+**/.obsidian/plugins/
+**/.obsidian/themes/
+# Obsidian自动生成的备份/历史版本（删除后的残留缓存）
+**/.trash/
+**/.recycle-bin/
+**/.history/
+# Obsidian内部索引缓存（删除文件后残留的缓存碎片）
+**/.obsidian/cache/
+**/.obsidian/workspace*
+**/.obsidian/app.json
+**/.obsidian/config.json
+
+# ===================== 媒体/文件精准过滤（只留需要的）=====================
+# ✅ 放行所有需要的文件（笔记+图片+动图+附件，不用改）
+!**/*.md        # 保留所有笔记文件
+!**/*.png       # 保留PNG截图/图片
+!**/*.jpg
+!**/*.jpeg
+!**/*.gif       # 保留GIF动图
+!**/*.bmp
+!**/*.webp
+!**/*.svg
+!**/*.mp4       # 可选：保留视频（不需要就删掉这行）
+!**/*.pdf       # 可选：保留PDF（不需要就删掉这行）
+
+# ===================== 系统/垃圾/残留文件过滤（全平台通用）=====================
+# Windows系统垃圾（删除文件的缩略图缓存、回收站残留）
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.tmp
+*.temp
+~$*.*
+
+# Mac系统垃圾（隐藏文件、缓存碎片）
+.DS_Store
+.fseventsd/
+.Spotlight-V100/
+.DocumentRevisions-V100/
+.com.apple.timemachine.donotpresent
+.com.apple.LaunchServices-*.plist
+
+# ===================== 其他冗余过滤（全面兜底）=====================
+# 日志文件
+*.log
+# 压缩包（本地备份用，无需同步）
+*.zip
+*.rar
+*.7z
+# 编辑器临时文件（比如VSCode/记事本编辑残留）
+*.swp
+*.swo
+*~
+# 空文件夹标记（Git自动忽略，无需手动删）
+**/empty
