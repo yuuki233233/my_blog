@@ -223,7 +223,7 @@ int main()
 ```
 ## 2、迭代器遍历
 迭代器是 STL 容器的通用遍历方式，适用于所有容器`（包括不支持下标访问的容器如 list、map 等）`。
-![](图片/图片/QQ20251203-213626.png)
+![](图片/QQ20251203-213626.png)
 ```cpp
 #include<iostream>
 #include<string>
