@@ -26,7 +26,10 @@
 
 领取过后就可以购买轻量应用服务器了。如果是大学生，可以点击优惠券，进入里面购买最便宜的即可(购买完一定要先修改购买的轻量应用服务器的密码)。
 ## Xshell
-购买完之后，需要安装Xshell，这是为了搭配好Linux环境的其中之一。
+### 下载
+购买完之后，需要安装Xshell，这是为了搭配好Linux环境。
+Xshell链接：[XSHELL – NetSarang Website](https://www.xshell.com/zh/xshell/)
+### 连接云服务
 
 
 
