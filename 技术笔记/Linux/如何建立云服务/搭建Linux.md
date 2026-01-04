@@ -32,8 +32,13 @@
 购买完之后，需要安装Xshell，这是为了搭配好Linux环境。
 Xshell链接：[XSHELL – NetSarang Website](https://www.xshell.com/zh/xshell/)
 ### 连接云服务
-打开Xshell，随机创建一个文件，进入dao
-
+打开Xshell，随机创建一个文件，进入到这个界面
+![](图片/5.png)
+在里面输入这个指令登录到你的云端
+```Bash
+ssh root@你购买云服务的公有ip地址
+```
+弹出登录界面，输入密码，显示下面这些内容登录chong
 
 
 
