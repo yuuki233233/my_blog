@@ -6,7 +6,6 @@
 > 本章博客将解决你以下的疑惑：
 > 1. 如何搭建云服务？
 > 2. 如何用Xshell连接云服务器？
-> 3. 怎么学习Linux系统？
 
 # 虚拟机与云服务
 ## 虚拟机
@@ -36,9 +35,14 @@ Xshell链接：[XSHELL – NetSarang Website](https://www.xshell.com/zh/xshell/)
 ![](图片/5.png)
 在里面输入这个指令登录到你的云端
 ```Bash
-ssh root@你购买云服务的公有ip地址
+ssh root@复制你购买云服务的公有ip地址 #ip地址在你阿里云购买的云服务中
 ```
-弹出登录界面，输入密码，显示下面这些内容登录chong
+弹出登录界面，输入密码，显示下面这些内容就登录成功
+```Bash
+Welcome to Alibaba Cloud Elastic Compute Service !
+```
+以后练习指令就可以在里面练习，如果云服务系统崩溃了也可以重装云系统
+
 
 
 
