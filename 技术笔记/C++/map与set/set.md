@@ -19,3 +19,242 @@ template < class T,
 		   > class set;
 ```
 ## 2.3 set的构造和恶迭代器
+set的构造我们关注以下几个接口即可
+set支持正向和反向迭代器遍历，遍历默认按升序排序，因为底层是二叉搜索树，迭代器遍历走的中序。支持迭代器就意味着支持范围for，set的iterator和const_iterator都不支持迭代器修改数据，修改关键字数据就破环了底层搜索树的结构
+```cpp
+// empty (1) ⽆参默认构造
+explicit set (const key_compare& comp = key_compare(),
+			  const allocator_type& alloc = allocator_type());
+			  
+// range (2) 迭代器区间构造
+template <class InputIterator>
+set (InputIterator first, InputIterator last,
+	const key_compare& comp = key_compare(),
+	const allocator_type& = allocator_type());
+
+// copy (3) 拷⻉构造
+set (const set& x);
+
+// initializer list (5) initializer 列表构造
+set (initializer_list<value_type> il,
+	const key_compare& comp = key_compare(),
+	const allocator_type& alloc = allocator_type());
+
+// 迭代器是⼀个双向迭代器
+iterator -> a bidirectional iterator to const value_type
+
+// 正向迭代器
+iterator begin();
+iterator end();
+
+// 反向迭代器
+reverse_iterator rbegin();
+reverse_iterator rend();
+```
+## set的增删查
+```cpp
+// 单个数据插⼊，如果已经存在则插⼊失败
+pair<iterator,bool> insert (const value_type& val);
+
+// 列表插⼊，已经在容器中存在的值不会插⼊
+void insert (initializer_list<value_type> il);
+
+// 迭代器区间插⼊，已经在容器中存在的值不会插⼊
+template <class InputIterator>
+void insert (InputIterator first, InputIterator last);
+
+// 查找val，返回val所在的迭代器，没有找到返回end()
+iterator find (const value_type& val);
+
+// 查找val，返回Val的个数
+size_type count (const value_type& val) const;
+
+// 删除⼀个迭代器位置的值
+iterator erase (const_iterator position);
+
+// 删除val，val不存在返回0，存在返回1
+size_type erase (const value_type& val);
+
+// 删除⼀段迭代器区间的值
+iterator erase (const_iterator first, const_iterator last);
+
+// 返回⼤于等val位置的迭代器
+iterator lower_bound (const value_type& val) const;
+
+// 返回⼤于val位置的迭代器
+iterator upper_bound (const value_type& val) const;
+```
+## 2.3 insert和迭代器遍历
+```cpp
+void set01() // set插入、打印
+{
+	// 内置类型
+	set<int> s;
+	s.insert(1);
+	s.insert(2);
+	s.insert(3);
+
+	/*for (auto e : s)
+		cout << e << " ";*/
+
+	set<int>::iterator it = s.begin();
+	while (it != s.end())
+	{
+		//*it = 1; set不支持修改
+		cout << *it << " ";
+		it++;
+	} // 1 2 3
+	cout << endl;
+
+	// C++11写法(可连续插入多个数据)
+	s.insert({ 4, 5, 6 });
+	for (auto e : s)
+		cout << e << " ";
+	cout << endl;
+
+	// 外置类型
+	set<string> str;
+	str.insert({ "hello"," ", "world" });
+	for (auto e : str)
+		cout << e << " ";
+	cout << endl;
+}
+```
+## 2.4 find和erase
+```cpp
+void set02() // 删除
+{
+	set<int> s({ 1, 2, 3 });
+	for (auto e : s)
+		cout << e << " "; // 1 2 3
+	cout << endl;
+
+	// erase删除(只支持头删)
+	s.erase(s.begin());
+	for (auto e : s)
+		cout << e << " "; // 2 3
+	cout << endl;
+
+	//s.erase(s.end()); // 尾删报错
+	//for (auto e : s)
+	//	cout << e << " ";
+	//cout << endl;
+
+	int era = s.erase(2); // erase删除返回整形
+	for (auto e : s)
+		cout << e << " "; // 2 3
+	cout << endl;
+	if (era == 0) // 删除失败返回0
+	{
+		cout << "删除失败" << endl;
+	}
+	else // 成功返回非0
+	{
+		cout << "删除成功" << endl;
+	}
+}
+
+void set03() // 查找
+{
+	set<int> s({ 1, 2, 3, 4, 5, 6 });
+	for (auto e : s)
+	{
+		cout << e << " "; // 1 2 3 4 5 6
+	}
+	cout << endl;
+
+	// 直接查找在利⽤迭代器删除x
+	auto e = s.find(3); // 查找到返回迭代器
+	if (e != s.end())
+	{
+		s.erase(e); // 删除迭代器上的数据，后迭代器失效
+	}
+	for (auto e : s)
+	{
+		cout << e << " "; // 1 2 4 5 6
+	}
+	cout << endl;
+
+	int x;
+	cin >> x;
+	// 利⽤count间接实现快速查找
+	if (s.count(x))
+	{
+		cout << "存在" << endl;
+	}
+	else
+	{
+		cout << "不存在" << endl;
+	}
+
+	// 算法库的查找 O(N)
+	auto pos1 = find(s.begin(), s.end(), x);
+	// set⾃⾝实现的查找 O(logN)
+	auto pos2 = s.find(x);
+}
+
+void set04() // 区间删除
+{
+	set<int> s({ 1, 2, 3, 4, 5, 6, 7 });
+	for (auto e : s)
+	{
+		cout << e << " ";
+	}
+	cout << endl;
+
+	// 实现查找到的[itlow,itup)包含[2, 6]区间
+	// 返回 >= 2
+	auto itlow = s.lower_bound(2);
+	// 返回 > 6
+	auto itup = s.upper_bound(6);
+
+	// 删除这段区间的值
+	s.erase(itlow, itup);
+	for (auto e : s)
+	{
+		cout << e << " "; // 1 6 7
+	}
+}
+```
+## 2.7 multiset和set差异
+multiset和set的使用基本完全类似，主要区别在于multiset支持数据冗余，与set差异的是insert、find、count、erase
+```cpp
+void set05() // multiset set
+{
+	// 相比set不同的是，multiset是排序，但是不去重
+	multiset<int> s = { 4,2,7,2,4,8,4,5,4,9 };
+	for (auto e : s)
+	{
+		cout << e << " ";
+	}
+	cout << endl;
+
+	// 相⽐set不同的是，x可能会存在多个，find查找中序的第⼀个
+	int x;
+	cin >> x;
+	auto pos = s.find(x);
+	while (pos != s.end())
+	{
+		if (*pos == x)
+		{
+			cout << *pos << " ";
+		}
+		++pos;
+	}
+	cout << endl;
+
+	// 相⽐set不同的是，count会返回x的实际个数
+	cout << s.count(x) << endl;
+
+	// 相⽐set不同的是，erase给值时会删除所有的x
+	s.erase(x);
+	for (auto e : s)
+	{
+		cout << e << " ";
+	}
+	cout << endl;
+}
+```
+# 三、map系列的使用
+## 3.1 map类的介绍
+map的声明如下，Key就是map底层关键字的类型，T是map底层value的类型，set默认要求Key支持小于比较，如果不支持或者xu'ya
