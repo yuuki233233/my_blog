@@ -266,4 +266,33 @@ template < class Key, // map::key_type
 		   > class map;
 ```
 ## 3.2 pair类型
-map底层
+map底层的红黑树节点中的数据，使用pair<Key, T>存储键值对数据
+```cpp
+typedef pair<const Key, T> value_type;
+
+typedef pair<const Key, T> value_type;
+struct<class T1, class T2>
+{
+	typedef T1 first_type;
+	typedef T2 second_type;
+	
+	T1 first;
+	T2 second;
+	
+	pair():first(T1()), second(T2())
+	{}
+	
+	pair(const T1& a, const T2& b):first(a), second(b)
+	{}
+	
+	template<class U, class V>
+	pair(const pair<U,V>& pr):first(pr.first), second(pr.second)
+	{}
+};
+
+template <class T1, class T2>
+inline pair<T1, T2> make_pair(T1 x, T2 y)
+{
+	return (pair<T1,T2>(x,y));
+}
+```
