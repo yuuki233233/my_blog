@@ -257,4 +257,13 @@ void set05() // multiset set
 ```
 # 三、map系列的使用
 ## 3.1 map类的介绍
-map的声明如下，Key就是map底层关键字的类型，T是map底层value的类型，set默认要求Key支持小于比较，如果不支持或者xu'ya
+map的声明如下，Key就是map底层关键字的类型，T是map底层value的类型，set默认要求Key支持小于比较，如果不支持或者需要就可以自行实现仿函数传给第二个模板参数，map底层存储数据的内存是从空间配置器申请的。一般情况下，我们不需要传后两个模板参数。map底层也是用红黑树实现，增删查改的效率是`O(logN)`，迭代器遍历时走的中序，所以是按Key有序遍历
+```cpp
+template < class Key, // map::key_type
+		   class T,   // map::mapped_type
+		   class Compare = less<Key> // map::key_compare
+		   class Alloc = allocator<pair<const Key, T>> // map::allocator_type
+		   > class map;
+```
+## 3.2 pair类型
+map底层
