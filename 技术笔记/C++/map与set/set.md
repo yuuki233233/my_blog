@@ -267,6 +267,7 @@ template < class Key, // map::key_type
 ```
 ## 3.2 pair类型
 map底层的红黑树节点中的数据，使用pair<Key, T>存储键值对数据
+简单来说：frist -> key，second -> value
 ```cpp
 typedef pair<const Key, T> value_type;
 
