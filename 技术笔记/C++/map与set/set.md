@@ -297,8 +297,40 @@ inline pair<T1, T2> make_pair(T1 x, T2 y)
 	return (pair<T1,T2>(x,y));
 }
 ```
-## 3.3 map插入
-### 3.3.1 插入种类
+### 3.3 map的构造
+map支持正向和反向迭代器遍历，遍历默认按key的升序排序，因为底层是二叉搜索树，迭代器遍历走中序
+```cpp
+// empty (1) ⽆参默认构造
+explicit map(const key_compare& comp = key_compare(),
+			 const allocator_type& alloc = allocator_type());
+			 
+// range (2) 迭代器区间构造
+template <class InputIterator>
+map(InputIterator first, InputIterator last,
+	const key_compare& comp = key_compare()
+	const allocator_type& alloc = allocator_type());
+
+// copy (3) 拷⻉构造
+map (const map& x);
+
+// initializer list (5) initializer 列表构造
+map(initializer_list<value_type> il,
+	const key_compare& comp = key_compare()
+	const allocator_type& alloc = allocator_type());
+	
+// 正向迭代器
+iterator begin();
+iterator end();
+
+// 反向迭代器
+reverse_iterator rbegin();
+reverse_iterator rend();
+```
+## 3.4 map的增删查
+set和map类似的：find、erase，但map的find可以查找到
+
+### 3.4.1 增
+#### （1） 插入类型
 map插入有多种写法，这里就一一例举常见的几种用法
 ```cpp
 #include<map>
@@ -347,7 +379,7 @@ int main()
 	return 0;
 }
 ```
-### 3.3.2 pair中的key和value及插入成功和失败
+#### （2） pair中的key和value及插入成功和失败
 map支持修改value数据，不支持修改key数据，修改关键数据会破坏底层搜索树的结构
 ```cpp
 // 隐式类型转换
@@ -368,5 +400,3 @@ dict.insert({ "auto", "自动" });
 dict.insert({ "auto", "zidong" });
 ```
 insert可以充当插入和查找的功能
-### 3.3.3 
-
