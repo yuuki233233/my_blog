@@ -347,5 +347,26 @@ int main()
 	return 0;
 }
 ```
-### 3.3.2 pair中的key和value
-pair存在于map中，构成一个节点。在pair中
+### 3.3.2 pair中的key和value及插入成功和失败
+pair存在于map中，构成一个节点。在pair结构体中存在frist，second，其中second可以直接修改，但frist不一定
+```cpp
+// 隐式类型转换
+dict.insert({ "auto", "自动" });
+
+// 插入是只看key(frist)，value不相等不会更新
+dict.insert({ "auto", "zidong" });
+```
+如何判断插入成功和失败，可以把map中的key(first)当成set中的value
+**插入成功：** key不相等，返回pair<新插入值所在迭代器，true>
+```cpp
+dict.insert({ "auto", "自动" });
+dict.insert({ "sort", "排序" });
+```
+**插入失败：** key是相等的，返回pair<已经存在跟key相等的迭代器，false>
+```cpp
+dict.insert({ "auto", "自动" });
+dict.insert({ "auto", "zidong" });
+```
+insert可以充当插入和查找的功能
+### 3.3.3 
+
