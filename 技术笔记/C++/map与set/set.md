@@ -348,4 +348,4 @@ int main()
 }
 ```
 ### 3.3.2 pair中的key和value
-pair存在于map中，类似构成一个节点。而pair中
+pair存在于map中，构成一个节点。在pair中
