@@ -348,7 +348,7 @@ int main()
 }
 ```
 ### 3.3.2 pair中的key和value及插入成功和失败
-pair存在于map中，构成一个节点。在pair结构体中存在frist，second，其中second可以直接修改，但frist不一定
+map支持修改value数据，不支持修改key数据，修改关键数据会破坏底层搜索树的结构
 ```cpp
 // 隐式类型转换
 dict.insert({ "auto", "自动" });
