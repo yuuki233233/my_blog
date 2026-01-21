@@ -327,8 +327,44 @@ reverse_iterator rbegin();
 reverse_iterator rend();
 ```
 ## 3.4 map的增删查
-set和map类似的：find、erase，但map的find可以查找到
+set和map类似的：find、erase，但map的find可以查找到value，同时可以修改value
+```cpp
+member types
+key_type    -> The first template parameter(key)
+mapped_type -> The second template parameter(T)
+value_type  -> pair <const key_type, mapped_type>
 
+// 单个数据插⼊，如果已经key存在则插⼊失败,key存在相等value不相等也会插⼊失败
+pair<iterator, bool> insert (const value_type& val);
+
+// 列表插⼊，已经在容器中存在的值不会插⼊
+void insert (initializer_list<value_type> il);
+
+// 迭代器区间插⼊，已经在容器中存在的值不会插⼊
+template <clas InputIterator>
+void insert (InputIterator first, InputIterator last);
+
+// 查找k，返回k所在的迭代器，没有找到返回end()
+iterator find (const key_type& k);
+
+// 查找k，返回k的个数
+size_type count (const key_type& k) const;
+
+// 删除⼀个迭代器位置的值
+iterator erase (const_iterator position);
+
+// 删除k，k存在返回0，存在返回1
+size_type erase (const key_type& k);
+
+// 删除⼀段迭代器区间的值
+iterator erase (const_iterator first, const_iterator last);
+
+// 返回⼤于等k位置的迭代器
+iterator lower_bound (const key_type& k);
+
+// 返回⼤于k位置的迭代器
+const_iterator lower_bound (const key_type& k) const;
+```
 ### 3.4.1 增
 #### （1） 插入类型
 map插入有多种写法，这里就一一例举常见的几种用法
@@ -379,24 +415,3 @@ int main()
 	return 0;
 }
 ```
-#### （2） pair中的key和value及插入成功和失败
-map支持修改value数据，不支持修改key数据，修改关键数据会破坏底层搜索树的结构
-```cpp
-// 隐式类型转换
-dict.insert({ "auto", "自动" });
-
-// 插入是只看key(frist)，value不相等不会更新
-dict.insert({ "auto", "zidong" });
-```
-如何判断插入成功和失败，可以把map中的key(first)当成set中的value
-**插入成功：** key不相等，返回pair<新插入值所在迭代器，true>
-```cpp
-dict.insert({ "auto", "自动" });
-dict.insert({ "sort", "排序" });
-```
-**插入失败：** key是相等的，返回pair<已经存在跟key相等的迭代器，false>
-```cpp
-dict.insert({ "auto", "自动" });
-dict.insert({ "auto", "zidong" });
-```
-insert可以充当插入和查找的功能
