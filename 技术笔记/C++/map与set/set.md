@@ -525,3 +525,12 @@ int main()
 	return 0;
 }
 ```
+## 3.6 multimap
+multimap支持关键值key冗余，`insert、find、count、erase`会有所不同，但multimap不支持`[]`
+>`insert`：`multimap`支持冗余，可以直接插入数据
+>`find`：有多个相同的`key`，则找中序第一个
+>`erase`：删除的`key`有多个相同，直接删除与`key`相同的
+
+```cpp
+
+```
