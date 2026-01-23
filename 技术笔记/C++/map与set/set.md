@@ -451,7 +451,7 @@ mapped_type& operator[] (const key_type& k)
 }
 ```
 
-### 3.5.2 `[]`de
+### 3.5.2 `[]`的使用样例
 ```cpp
 #define _CRT_SECURE_NO_WARNINGS
 #include<iostream>
@@ -484,4 +484,8 @@ int main()
 	}
 	return 0;
 }
+```
+### 3.5.3 用`[]`来统计出现次数
+```cpp
+
 ```
