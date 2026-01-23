@@ -415,3 +415,73 @@ int main()
 	return 0;
 }
 ```
+## 3.5 map中`[]`的使用
+### 3.5.1 map中`[]`内部原理
+map支持修改mapped_type数据，不支持修改key数据。要修改map时要通过迭代器修改，迭代器遍历或者find都是放回key所在的迭代器。还有一个重要的operator[]接口，不仅仅支持修改，还能插入、查找数据
+需要注意从内部实现角度，map这里把我们传统说的value值，给的是T类型，typedef为mapped_type。而value_type是红黑树结点中存储的pair键值对值。日常使用我们还是习惯将这里的T映射值叫做value。
+```cpp
+Member types
+key_type -> The first template parameter (Key)
+mapped_type -> The second template parameter (T)
+value_type -> pair<const key_type,mapped_type>
+
+// 查找k，返回k所在的迭代器，没有找到返回end()，如果找到了通过iterator可以修改key对应的mapped_type值
+iterator find (const key_type& k);
+
+// insert插⼊⼀个pair<key, T>对象
+
+// 1、如果key已经在map中，插⼊失败，则返回⼀个pair<iterator,bool>对象，返回pair对象first是key所在结点的迭代器，second是false
+// 2、如果key不在在map中，插⼊成功，则返回⼀个pair<iterator,bool>对象，返回pair对象first是新插⼊key所在结点的迭代器，second是true
+// 也就是说⽆论插⼊成功还是失败，返回pair<iterator,bool>对象的first都会指向key所在的迭代器
+// 那么也就意味着insert插⼊失败时充当了查找的功能，正是因为这⼀点，insert可以⽤来实现operator[]
+// 需要注意的是这⾥有两个pair，不要混淆了，⼀个是map底层红⿊树节点中存的pair<key, T>，另⼀个是insert返回值pair<iterator,bool>
+
+pair<iterator,bool> insert (const value_type& val);
+
+mapped_type& operator[] (const key_type& k);
+
+// operator的内部实现
+mapped_type& operator[] (const key_type& k)
+{
+	// 1、如果k不在map中，insert会插⼊k和mapped_type默认值，同时[]返回结点中存储mapped_type值的引⽤，那么我们可以通过引⽤修改返映射值。所以[]具备了插⼊+修改功能
+	// 2、如果k在map中，insert会插⼊失败，但是insert返回pair对象的first是指向key结点的迭代器，返回值同时[]返回结点中存储mapped_type值的引⽤，所以[]具备了查找+修改的功能
+    pair<iterator, bool> ret = insert({ k, mapped_type() });
+    iterator it = ret.first;
+    return it->second;
+}
+```
+
+### 3.5.2 `[]`de
+```cpp
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+using namespace std;
+
+#include<map>
+int main()
+{
+	// 初始化方式：使用花括号包裹每个 pair
+	map<string, string> m{ {"hello", "world"}, {"left", "左边"}, {"right", "右边"} };
+
+	// 当key中没有时则插入
+	m["sort"];
+
+	// 有无key情况：
+	// 
+	// 情况1：[]找到key(left)，然后修改T
+	m["left"] = "左边剩余";
+
+	// 情况2：无insert，插入加修改
+	m["insert"] = "插入";
+
+	// []也可以实现查找，但要注意以上两种情况，确保有key时查找，不然就插入新数据
+	cout << m["left"] << endl;
+	cout << m["operator"] << endl << endl;;
+
+	for (const auto& e : m)
+	{
+		cout << e.first << " " << e.second << endl;
+	}
+	return 0;
+}
+```
