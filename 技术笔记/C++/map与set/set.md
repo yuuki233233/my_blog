@@ -487,5 +487,41 @@ int main()
 ```
 ### 3.5.3 用`[]`来统计出现次数
 ```cpp
+int main()
+{
+	string arr[]{ "苹果","香蕉", "葡萄", "苹果", "苹果", "草莓", "香蕉", "苹果", "草莓" };
+	map<string, int> m;
+	for (auto e : arr)
+	{
+		auto ret = m.find(e);
+		if (ret == m.end())
+		{
+			m.insert({e, 1});
+		}
+		else
+		{
+			ret->second++;
+		}
+	}
 
+	for (auto e : m)
+	{
+		cout << e.first << ":" << e.second << endl;
+	}
+
+	string str;
+	while (cin >> str)
+	{
+		if (m.find(str) != m.end())
+		{
+			cout << "找到了！！" << endl;
+		}
+		else
+		{
+			cout << "没找到" << endl;
+		}
+	}
+
+	return 0;
+}
 ```
