@@ -530,7 +530,23 @@ multimap支持关键值key冗余，`insert、find、count、erase`会有所不�
 >`insert`：`multimap`支持冗余，可以直接插入数据
 >`find`：有多个相同的`key`，则找中序第一个
 >`erase`：删除的`key`有多个相同，直接删除与`key`相同的
-
 ```cpp
+int main()
+{
+	multimap<string, string> m{ {"X", "星链"}, {"X", "特斯拉"}, {"X", "火箭"} };
 
+	// 查找
+	auto ret = m.find("X"); // 中序第一个
+	cout << ret->first << ":" << ret->second << endl;
+
+	// 插入
+	m.insert({ "Apple", "手机" });
+	m.insert({ "Apple", "笔记本" });
+
+	// 删除(key为X)
+	m.erase("X");
+
+	return 0;
+}
 ```
+# 四、总结
