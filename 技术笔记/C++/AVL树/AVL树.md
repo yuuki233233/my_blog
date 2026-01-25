@@ -159,6 +159,91 @@ bool insert(const K& key, const V& value)
 ![](图片/右单旋图4.png)
 ![](图片/右单旋图5.png)
 ### 2.3.3 右单旋代码实现
-### 2.3.4 左单旋
-### 2.3.5 左单旋代码实现
 
+```cpp
+// 右旋
+void RotateR(Node* parent)
+{
+	// 最核心部分
+	/*Node* SubL = parent->_left;
+	Node* SubLR = SubL->_right;
+
+	parent->_left = SubLR;
+	SubL->_right = parent;*/
+
+	
+	// 核心三节点，不需要其他节点
+	Node* SubL = parent->_left;
+	Node* SubLR = SubL->_right;
+
+
+	parent->_left = SubLR;		// 1.需画图理解
+
+	// 对应h = 0
+	if(SubLR != nullptr)
+		SubLR->_parent = parent;	// 2.要满足父节点(左指针或右指针) -> 子节点，子节点(父指针) -> 父节点
+
+	SubL->_right = parent;		// 满足 1.
+	parent->_parent = SubL;		// 满足 2.
+
+
+	Node* pParent = parent->_parent;
+	if (parent == _root)	/*根为根节点*/
+	{
+		_root = SubL;
+		SubL->_parent = nullptr;
+	}
+	else	/*根为子树*/
+	{
+		if (pParent->_left == parent)
+		{
+			pParent->_left = SubL;
+		}
+		else
+		{
+			pParent->_right = SubL;
+		}
+	}
+	
+	// 旋转完，更新平衡因子
+	SubL->_bf = parent->_bf = 0;
+}
+```
+### 2.3.4 左单旋
+
+### 2.3.5 左单旋代码实现
+```cpp
+// 左旋
+void RotateL(Node* parent)
+{
+	// 核心三节点，不需要其他节点
+	Node* SubR = parent->_right;
+	Node* SubRL = SubR->_left;
+
+	parent->_right = SubRL;
+	SubR->_left = parent;
+	parent->_parent = SubR;
+	if(SubRL != nullptr)
+		SubRL->_parent = parent;
+
+	Node* pParent = parent->_parent;
+	if (parent == _root)
+	{
+		_root = SubR;
+		SubR->_parent = nullptr;
+	}
+	else
+	{
+		if (pParent->_left == parent)
+		{
+			pParent->_left = SubR;
+		}
+		else
+		{
+			pParent->_right = SubR;
+		}
+	}
+
+	parent->_bf = SubR->_bf = 0;
+}
+```
