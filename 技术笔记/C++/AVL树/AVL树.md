@@ -10,12 +10,48 @@ AVL树发明与平衡二叉树，在此之上引入了平衡因子的概念`(平
 可以参照模拟实现二叉搜索树的代码进行对比
 **二叉搜索树：**
 ```cpp
+// 二叉搜索树节点结构
+template<class K>
+struct BSTNode
+{
+	K _key;               // 节点存储的关键码
+	BSTNode<K>* _left;    // 左孩子节点指针
+	BSTNode<K>* _right;   // 右孩子节点指针
 
+	// 构造函数：初始化节点
+	BSTNode(const K& key)
+		:_key(key)
+		, _left(nullptr)
+		, _right(nullptr)
+	{
+	}
+};
 ```
 
 **AVL树：**
+```cpp
+template<class K, class V>
+struct AVLTreeNode
+{
+	pair<K, V> _kv;
+	AVLTreeNode<K, V>* _left;
+	AVLTreeNode<K, V>* _right;
+	AVLTreeNode<K, V>* _parent;
+	int _bf;
+	AVLTreeNode(const pair<K, V>& kv)
+		:_kv(kv)
+		,_left(nullptr)
+		,_right(nullptr)
+		,_parent(nullptr)
+		,_bf(0)
+	{ }
+};
+```
 ## 2.2 AVL树的插入
 ### 2.2.1 AVL树插入一个值的大概过程
+1. 按二叉搜索树规则插入一个值
+2. 更新平衡因子，更新完插入结束
+3. 
 ### 2.2.2 更新平衡因子
 ## 2.3 旋转
 ### 2.3.1 旋转的原则
