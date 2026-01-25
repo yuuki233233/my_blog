@@ -159,7 +159,7 @@ bool insert(const K& key, const V& value)
 ![](图片/右单旋图4.png)
 ![](图片/右单旋图5.png)
 ### 2.3.3 右单旋代码实现
-
+模拟实现左单旋和右单旋最重要的就是画图
 ```cpp
 // 右旋
 void RotateR(Node* parent)
@@ -209,9 +209,7 @@ void RotateR(Node* parent)
 	SubL->_bf = parent->_bf = 0;
 }
 ```
-### 2.3.4 左单旋
-
-### 2.3.5 左单旋代码实现
+### 2.3.4 左单旋代码实现
 ```cpp
 // 左旋
 void RotateL(Node* parent)
@@ -247,3 +245,10 @@ void RotateL(Node* parent)
 	parent->_bf = SubR->_bf = 0;
 }
 ```
+### 2.3.5 左右双旋
+### 2.3.6 模拟实现左右双旋
+### 2.3.7 右左双旋
+### 2.3.8 模拟实现右左双旋
+## 2.4 AVL树的查找
+## 2.5 AVL树平衡检测
+## 2.6 AVL树的删除
