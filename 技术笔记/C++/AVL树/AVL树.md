@@ -68,10 +68,96 @@ struct AVLTreeNode
 ![](图片/平衡因子02.png)
 
 **最![](图片/平衡因子03.png)坏更新到根停止**
-### 2.2.3 插入节点及geng'xin
+### 2.2.3 插入节点及更新平衡因子的代码实现
+```cpp
+template<class K, class V>
+bool insert(const K& key, const V& value)
+{
+	// 情况1：树为空
+	if (_root == nullptr)
+	{
+		_root = new Node<K, V>;
+		return tree;
+	}
+
+	// 情况2：树不为空
+	Node* cur = _root;
+	Node* parent = nullptr;
+	while (cur) // 找到空节点
+	{
+		if (cur->_kv < key)
+		{
+			parent = cur;
+			cur = cur->_right;
+		}
+		else if (cur->_kv > key)
+		{
+			parent = cur;
+			cur = cur->_left;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	// 插入空节点
+	cur = new Node(key, value);
+	if (parent->_kv < key)
+	{
+		parent->_right = cur;
+	}
+	else
+	{
+		parent->_left = cur;
+	}
+	cur->_parent = parent;
+
+	// 更新平衡因子
+	while (parent)
+	{
+		// 更新平衡因子
+		if (cur == parent->_left)
+			parent->_bf--;
+		else
+			parent->_bf++;
+
+		if (parent->_bf == 0)
+		{
+			// 平衡退出
+			break;
+		}
+		else if (parent->_bf == 1 || parent->_bf == -1)
+		{
+			// 往上更新
+			cur = parent;
+			parent = parent->_parent;
+		}
+		else if(parent->_bf == 2 || parent->_bf == -2)
+		{
+			// 不平衡，旋转处理
+
+		}
+		else
+		{
+			assert(false);
+		}
+	}
+	return true;
+}
+```
 ## 2.3 旋转
 ### 2.3.1 旋转的原则
+- 保持搜索树的规则
+- 平衡被破坏的树，用旋转降低高度
+旋转总共分为四种：左单旋/右单旋/左右双旋/右左双旋
 ### 2.3.2 右单旋
+**以下5张图解释了右单旋的抽象情况，可以解决大部分右单旋的问题**
+![](图片/右单旋图1.png)
+![](图片/右单旋图2.png)
+![](图片/右单旋图3.png)
+![](图片/右单旋图4.png)
+![](图片/右单旋图5.png)
 ### 2.3.3 右单旋代码实现
 ### 2.3.4 左单旋
 ### 2.3.5 左单旋代码实现
