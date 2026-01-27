@@ -258,8 +258,81 @@ void RotateL(Node* parent)
  >**场景2**：`h>=1`时，新增节点插入在f子树，f子树高度从`h-1`变为h并不断更新`8->5->10`平衡因子，引发旋转，其中8的平衡因子为-1，旋转后8和5平衡因子为0，10平衡因子为-1
  >**场景3**：`h==0`时，a/b/c都是空树，b自己就是一个新增节点，不断更新`5->10`平衡因子，引发旋转，其中8的平衡因子为0，旋转后8和10和5平衡因子均为0
 ### 2.3.6 模拟实现左右双旋
-### 2.3.7 右左双旋
-### 2.3.8 模拟实现右左双旋
+```cpp
+// 左右双旋
+void RotateLR(Node* parent)
+{
+	Node* subL = parent->_left;
+	Node* subLR = subL->_right;
+	int bf = subLR->_bf;
+
+	RotateL(parent->_left);
+	RotateR(parent);
+
+	if (bf == 0)
+	{
+		subL->_bf = 0;
+		subLR->_bf = 0;
+		parent->_bf = 0;
+	}
+	else if (bf == -1)
+	{
+		subL->_bf = 0;
+		subLR->_bf = 0;
+		parent->_bf = 1;
+	}
+	else if (bf == 1)
+	{
+		subL->_bf = -1;
+		subLR->_bf = 0;
+		subLR->_bf = 0;
+	}
+	else
+	{
+		assert(false);
+	}
+}
+```
+### 2.3.7 模拟实现右左双旋
+```cpp
+// 右左双旋
+void RotateRL(Node* parent)
+{
+	Node* subR = parent->_right;
+	Node* subRL = subR->_left;
+	int bf = subRL->_bf;
+
+	if (bf == 0)
+	{
+		subR->_bf = 0;
+		subRL->_bf = 0;
+		parent->_bf = 0;
+	}
+	else if(bf == -1)
+	{
+		subR->_bf = 0;
+		subRL->_bf = 0;
+		parent->_bf = -1;
+	}
+	else if (bf == 1)
+	{
+		subR->_bf = 1;
+		subRL->_bf = 0;
+		subRL->_bf = 0;
+	}
+	else
+	{
+		assert(false);
+	}
+}
+```
 ## 2.4 AVL树的查找
+那二叉搜索树逻辑实现即可，搜索效率`O(lngN)`
+```cpp
+
+```
 ## 2.5 AVL树平衡检测
-## 2.6 AVL树的删除
+我们实现的AVL是否合格，我们通过检查左右子树高度差的程序进行反向验证，同时检查一下节点的平衡因子更新是否出现了问题
+```cpp
+
+```
