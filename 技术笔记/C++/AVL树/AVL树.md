@@ -329,10 +329,48 @@ void RotateRL(Node* parent)
 ## 2.4 AVL树的查找
 那二叉搜索树逻辑实现即可，搜索效率`O(lngN)`
 ```cpp
-
+Node* Find(const k& key)
+{
+	Node* cur = _root;
+	while(cur)
+	{
+		if(cur->_kv.frist < key)
+		{
+			cur = cur->_right;
+		}
+		else if(cur->_kv.frist > key)
+		{
+			cur = cur->_left;
+		}
+		else
+		{
+			return cur;
+		}
+	}
+	
+	return nullptr;
+}
 ```
 ## 2.5 AVL树平衡检测
 我们实现的AVL是否合格，我们通过检查左右子树高度差的程序进行反向验证，同时检查一下节点的平衡因子更新是否出现了问题
 ```cpp
+int _Height(Node* root)
+{
+	if(root == nullptr)
+		return 0;
+		
+	int leftHeight = _Height(root->_left);
+	int rightHeight = _Height(root->_right);
+	
+	return leftHeight > rightHeight ? leftHeight + 1 : rightHeight + 1;
+}
 
+bool _IsBanlanceTree(Node* root)
+{
+	if(nullptr == root)
+		return true;
+		
+	int leftHeight = _Height(root->_left);
+	int rightHeight = _Height(root->_right);
+}
 ```
