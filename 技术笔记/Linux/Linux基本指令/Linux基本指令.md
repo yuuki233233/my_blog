@@ -195,5 +195,14 @@ yum install zip unzip -y
 **验证是否安装成功**
 **输入`zip -v`**，显示版本信息就是安装好了
 ## 使用zip/unzip指令
+**语法：** 
+```bash
+#文本
+## zip解压形式 E.zip新建解压包名称 E文本
+zip E.zip E
+
+#文件
+## zip解压形式 -r(递归选项) E.zip新建解压包名称 E文本
+```
 
 # tar指令
