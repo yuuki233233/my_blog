@@ -187,4 +187,19 @@ head与tail用来显示开头或结尾某个数量的文字区块，head用来�
 
 # top
 # zip/unzip指令
+## 安装zip/unzip指令
+在使用zip和unzip命令时，要在对应的服务器进行安装
+**Debian/Ubantu系列**
+```Bash
+apt update && apt install zip unzip -y
+```
+**unzip**也一同安装，解压zip文件会用到
+
+**CentOS/RHEL系列**
+```Bash
+yum install zip unzip -y
+```
+
+**验证是否安装成功**
+**输入`zip -v`**，显示版本信息就是安装好了
 # tar指令
