@@ -372,5 +372,17 @@ bool _IsBanlanceTree(Node* root)
 		
 	int leftHeight = _Height(root->_left);
 	int rightHeight = _Height(root->_right);
+	int diff = rightHeight - leftHeight;
+	
+	if(abs(diff) >= 2)
+	{
+		cout << root->_kv.first << "⾼度差异常" << endl;
+		return false;
+	}
+	
+	if(root->_bf != diff)
+	{
+		
+	}
 }
 ```
