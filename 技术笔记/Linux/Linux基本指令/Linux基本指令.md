@@ -178,7 +178,7 @@ head与tail用来显示开头或结尾某个数量的文字区块，head用来�
 # grep指令
 
 # top
-# zip/unzip指令
+# zip/unzip指令(需安装)
 ## 安装zip/unzip指令
 在使用zip和unzip命令时，要在对应的服务器进行安装
 **Debian/Ubantu系列**
@@ -197,12 +197,31 @@ yum install zip unzip -y
 ## 使用zip/unzip指令
 **语法：** 
 ```bash
-#文本
+# 压缩文本
 ## zip解压形式 E.zip新建解压包名称 E文本
-zip E.zip E
+zip test.zip test
 
-#文件
+# 压缩文件
 ## zip解压形式 -r(递归选项) E.zip新建解压包名称 E文本
-```
+zip -r test.zip test
 
+# (方式一：)解压文本/文件
+## 首先多压缩文件进行转移
+mv test.zip [文件]
+## 解压
+unzip [文件]/test.zip
+
+# (方式二：)一次性解压转移的压缩文本
+unzip test.zip -d /tmp
+```
+## rz和sz命令(需安装)
+rz、sz时用来在本地和服务器之间传文件的工具
+**Debian/Ubantu系列**
+```bash
+sudo apt update && sudo apt install lrzsz -y
+```
+**CentOS/RHEL系列**
+```bash
+yum install -y lrzsz
+```
 # tar指令
