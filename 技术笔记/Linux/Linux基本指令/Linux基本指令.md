@@ -214,7 +214,7 @@ unzip [文件]/test.zip
 # (方式二：)一次性解压转移的压缩文本
 unzip test.zip -d /tmp
 ```
-## rz和sz命令(需安装)
+# rz和sz命令(需安装)
 rz、sz时用来在本地和服务器之间传文件的工具
 **Debian/Ubantu系列**
 ```bash
@@ -223,5 +223,15 @@ sudo apt update && sudo apt install lrzsz -y
 **CentOS/RHEL系列**
 ```bash
 yum install -y lrzsz
+```
+**语法使用：**
+```bash
+# 把Linux中的压缩包传到Windows
+sz test.zip
+
+# 把Windows中的压缩包传到Linux
+rz # 自己选择压缩包
+# 传到Linux后要解压
+unzip test.zip
 ```
 # tar指令
