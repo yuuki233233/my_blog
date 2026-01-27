@@ -367,13 +367,18 @@ int _Height(Node* root)
 
 bool _IsBanlanceTree(Node* root)
 {
+	// 空树也是AVL树
 	if(nullptr == root)
 		return true;
 		
+	// 计算pRoot结点的平衡因⼦：即pRoot左右⼦树的⾼度差
 	int leftHeight = _Height(root->_left);
 	int rightHeight = _Height(root->_right);
 	int diff = rightHeight - leftHeight;
 	
+	
+	// 如果计算出的平衡因⼦与pRoot的平衡因⼦不相等，或者
+	// pRoot平衡因⼦的绝对值超过1，则⼀定不是AVL树
 	if(abs(diff) >= 2)
 	{
 		cout << root->_kv.first << "⾼度差异常" << endl;
@@ -382,7 +387,12 @@ bool _IsBanlanceTree(Node* root)
 	
 	if(root->_bf != diff)
 	{
-		
+		cout << root->kv.frist << "平衡因子异常" << endl;
+		return false;
 	}
+	
+	// pRoot的左和右如果都是AVL树，则该树⼀定是AVL树
+	return _IsBalanceTree(root->_left) && _IsBalanceTree(root->_right);
 }
 ```
+# 三、总结
