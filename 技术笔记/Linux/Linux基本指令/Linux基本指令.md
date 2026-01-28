@@ -221,6 +221,7 @@ yum install zip unzip -y
 2. 查看压缩包详情：`unzip -l 压缩包名.zip`（看里面有哪些文件 / 文件夹）
 3. 查看压缩包是否损坏：`unzip -t 压缩包名.zip`（验证完整性）
 # rz和sz命令(需安装)
+## 一、安装sz/rz指令
 rz、sz时用来在本地和服务器之间传文件的工具
 **Debian/Ubantu系列**
 ```bash
@@ -230,7 +231,8 @@ sudo apt update && sudo apt install lrzsz -y
 ```bash
 yum install -y lrzsz
 ```
-**语法使用：**
+## 二、sz/rz远程传输
+**核心格式：** `sz 压缩包.zip`
 ```bash
 # 把Linux中的压缩包传到Windows
 sz test.zip
@@ -241,3 +243,6 @@ rz # 自己选择压缩包
 unzip test.zip
 ```
 # tar指令(Linux自带)
+**核心格式：** `tar [参数] 文件/文件夹 ...`
+**1.常用参数**：
+- `-c`：
