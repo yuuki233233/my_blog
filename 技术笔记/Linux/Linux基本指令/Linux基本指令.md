@@ -179,7 +179,7 @@ head与tail用来显示开头或结尾某个数量的文字区块，head用来�
 
 # top
 # zip/unzip指令(需安装)
-## 安装zip/unzip指令
+## 一、安装zip/unzip指令
 在使用zip和unzip命令时，要在对应的服务器进行安装
 **Debian/Ubantu系列**
 ```Bash
@@ -194,8 +194,12 @@ yum install zip unzip -y
 
 **验证是否安装成功**
 **输入`zip -v`**，显示版本信息就是安装好了
-## 使用zip/unzip指令
-**语法：** 
+## 二、zip压缩命令（打包文件/文件夹）
+**核心格式：** `zip [参数] 生成的压缩包名.zip 要压缩的文件/文件夹1 文件夹2 ...`
+**1.基础用法**
+- 压缩单个文件：`zip test.zip test.txt`
+- 压缩多个文件：`zip test.zip a. txt b.jpg c.pdf`
+- 压缩文件夹（必加`-r`，递归y）
 ```bash
 # 压缩文本
 ## zip解压形式 E.zip新建解压包名称 E文本
@@ -234,4 +238,4 @@ rz # 自己选择压缩包
 # 传到Linux后要解压
 unzip test.zip
 ```
-# tar指令
+# tar指令(Linux自带)
