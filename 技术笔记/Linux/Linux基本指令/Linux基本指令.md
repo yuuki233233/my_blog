@@ -233,16 +233,19 @@ yum install -y lrzsz
 ```
 ## 二、sz/rz远程传输
 **核心格式：** `sz 压缩包.zip`
-```bash
-# 把Linux中的压缩包传到Windows
-sz test.zip
-
-# 把Windows中的压缩包传到Linux
-rz # 自己选择压缩包
-# 传到Linux后要解压
-unzip test.zip
-```
+**1.基础用法**
+- Linux中传到Windows：`sz test.zip`
+- Windows传到Linux：`rz`
+- Linux传到Linux：`scp 压缩文件.zip 用户名@公网ip：目标机器指定路径`
 # tar指令(Linux自带)
 **核心格式：** `tar [参数] 文件/文件夹 ...`
-**1.常用参数**：
-- `-c`：
+**1.常实用参数**：
+- `-c`：创建压缩包
+- `-z`：把打包文件进行压缩
+- `-f`：新的压缩包名称
+- `-x`：解压文件
+- `-v`：显示解压过程
+**2.基础用法**
+- 压缩文件/文件夹：`tar czf test.tgz test.txt`
+- 解压文件/文件夹：`tar xzf test.tgz`
+- 解压到指定目录：`tar xzf test.tgz -C 目录路径`
