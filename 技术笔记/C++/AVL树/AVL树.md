@@ -312,142 +312,184 @@ void RotateL(Node* parent)
  >**场景1**：`h>=1`时，新增节点插入在e子树，e子树高度从`h-1`并不断更新`8->5->10`平衡因子，引发旋转，其中8的平衡因子为-1，旋转后8和5平衡因子为0，10平衡因子为1
  >**场景2**：`h>=1`时，新增节点插入在f子树，f子树高度从`h-1`变为h并不断更新`8->5->10`平衡因子，引发旋转，其中8的平衡因子为-1，旋转后8和5平衡因子为0，10平衡因子为-1
  >**场景3**：`h==0`时，a/b/c都是空树，b自己就是一个新增节点，不断更新`5->10`平衡因子，引发旋转，其中8的平衡因子为0，旋转后8和10和5平衡因子均为0
-### 2.3.6 模拟实现左右双旋
 ```cpp
 // 左右双旋
 void RotateLR(Node* parent)
 {
-	Node* subL = parent->_left;
-	Node* subLR = subL->_right;
-	int bf = subLR->_bf;
+    Node* subL = parent->_left;
+    Node* subLR = subL->_right;
+    int bf = subLR->_bf; // 记录旋转中心的BF，用于后续重置
 
-	RotateL(parent->_left);
-	RotateR(parent);
+    // 第一步：对subL做左单旋
+    RotateL(subL);
+    // 第二步：对parent做右单旋
+    RotateR(parent);
 
-	if (bf == 0)
-	{
-		subL->_bf = 0;
-		subLR->_bf = 0;
-		parent->_bf = 0;
-	}
-	else if (bf == -1)
-	{
-		subL->_bf = 0;
-		subLR->_bf = 0;
-		parent->_bf = 1;
-	}
-	else if (bf == 1)
-	{
-		subL->_bf = -1;
-		subLR->_bf = 0;
-		subLR->_bf = 0;
-	}
-	else
-	{
-		assert(false);
-	}
+    // 根据旋转中心的BF，重置所有节点的平衡因子
+    if (bf == 0)
+    {
+        // 旋转中心是新增节点，所有BF归0
+        parent->_bf = subL->_bf = subLR->_bf = 0;
+    }
+    else if (bf == -1)
+    {
+        // 新增节点在subLR的左子树
+        parent->_bf = 1;
+        subL->_bf = 0;
+        subLR->_bf = 0;
+    }
+    else if (bf == 1)
+    {
+        // 新增节点在subLR的右子树
+        parent->_bf = 0;
+        subL->_bf = -1;
+        subLR->_bf = 0;
+    }
+    else
+    {
+        assert(false && "旋转中心平衡因子异常");
+    }
 }
 ```
-### 2.3.7 模拟实现右左双旋
+### 3.2.4 右左双旋（RotateRL）
+**适用场景**：失衡节点的平衡因子为 2，且右孩子的平衡因子为 - 1（右子树的左子树过高，折线型失衡）。
+**核心逻辑**：先对右孩子做右单旋，再对失衡节点做左单旋。
 ```cpp
 // 右左双旋
 void RotateRL(Node* parent)
 {
-	Node* subR = parent->_right;
-	Node* subRL = subR->_left;
-	int bf = subRL->_bf;
+    Node* subR = parent->_right;
+    Node* subRL = subR->_left;
+    int bf = subRL->_bf; // 记录旋转中心的BF
 
-	if (bf == 0)
-	{
-		subR->_bf = 0;
-		subRL->_bf = 0;
-		parent->_bf = 0;
-	}
-	else if(bf == -1)
-	{
-		subR->_bf = 0;
-		subRL->_bf = 0;
-		parent->_bf = -1;
-	}
-	else if (bf == 1)
-	{
-		subR->_bf = 1;
-		subRL->_bf = 0;
-		subRL->_bf = 0;
-	}
-	else
-	{
-		assert(false);
-	}
+    // 第一步：对subR做右单旋
+    RotateR(subR);
+    // 第二步：对parent做左单旋
+    RotateL(parent);
+
+    // 重置平衡因子
+    if (bf == 0)
+    {
+        parent->_bf = subR->_bf = subRL->_bf = 0;
+    }
+    else if (bf == 1)
+    {
+        // 新增节点在subRL的右子树
+        parent->_bf = -1;
+        subR->_bf = 0;
+        subRL->_bf = 0;
+    }
+    else if (bf == -1)
+    {
+        // 新增节点在subRL的左子树
+        parent->_bf = 0;
+        subR->_bf = 1;
+        subRL->_bf = 0;
+    }
+    else
+    {
+        assert(false && "旋转中心平衡因子异常");
+    }
 }
 ```
-## 2.4 AVL树的查找
-那二叉搜索树逻辑实现即可，搜索效率`O(lngN)`
+## 3.3 查找操作
+继承二叉搜索树的查找逻辑，时间复杂度稳定在 O(logN)
 ```cpp
-Node* Find(const k& key)
+// 查找指定键对应的节点（返回值为Node*，方便扩展）
+Node* Find(const K& key)
 {
-	Node* cur = _root;
-	while(cur)
-	{
-		if(cur->_kv.frist < key)
-		{
-			cur = cur->_right;
-		}
-		else if(cur->_kv.frist > key)
-		{
-			cur = cur->_left;
-		}
-		else
-		{
-			return cur;
-		}
-	}
-	
-	return nullptr;
+    Node* cur = _root;
+    while (cur)
+    {
+        if (cur->_kv.first < key)
+        {
+            cur = cur->_right;
+        }
+        else if (cur->_kv.first > key)
+        {
+            cur = cur->_left;
+        }
+        else
+        {
+            // 找到节点，返回指针
+            return cur;
+        }
+    }
+    // 未找到，返回空
+    return nullptr;
 }
 ```
-## 2.5 AVL树平衡检测
+## 3.4 平衡检测（优化 + 修复）
 我们实现的AVL是否合格，我们通过检查左右子树高度差的程序进行反向验证，同时检查一下节点的平衡因子更新是否出现了问题
 ```cpp
+// 辅助函数：计算子树高度
 int _Height(Node* root)
 {
-	if(root == nullptr)
-		return 0;
-		
-	int leftHeight = _Height(root->_left);
-	int rightHeight = _Height(root->_right);
-	
-	return leftHeight > rightHeight ? leftHeight + 1 : rightHeight + 1;
+    if (root == nullptr)
+        return 0;
+    // 递归计算左右子树高度，取最大值+1
+    int leftH = _Height(root->_left);
+    int rightH = _Height(root->_right);
+    return max(leftH, rightH) + 1;
 }
 
-bool _IsBanlanceTree(Node* root)
+// 核心检测函数：验证是否为合法AVL树
+bool _IsBalanceTree(Node* root)
 {
-	// 空树也是AVL树
-	if(nullptr == root)
-		return true;
-		
-	// 计算pRoot结点的平衡因⼦：即pRoot左右⼦树的⾼度差
-	int leftHeight = _Height(root->_left);
-	int rightHeight = _Height(root->_right);
-	int diff = rightHeight - leftHeight;
-	
-	
-	// 如果计算出的平衡因⼦与pRoot的平衡因⼦不相等，或者
-	// pRoot平衡因⼦的绝对值超过1，则⼀定不是AVL树
-	if(abs(diff) >= 2)
-	{
-		cout << root->_kv.first << "⾼度差异常" << endl;
-		return false;
-	}
-	
-	if(root->_bf != diff)
-	{
-		cout << root->kv.frist << "平衡因子异常" << endl;
-		return false;
-	}
-	
-	// pRoot的左和右如果都是AVL树，则该树⼀定是AVL树
-	return _IsBalanceTree(root->_left) && _IsBalanceTree(root->_right);
+    // 空树是合法AVL树
+    if (root == nullptr)
+        return true;
+
+    // 1. 计算当前节点的实际平衡因子
+    int leftH = _Height(root->_left);
+    int rightH = _Height(root->_right);
+    int actualBF = rightH - leftH;
+
+    // 2. 校验平衡因子合法性
+    if (abs(actualBF) >= 2)
+    {
+        cout << "节点[" << root->_kv.first << "]失衡：实际BF=" << actualBF << endl;
+        return false;
+    }
+    if (root->_bf != actualBF)
+    {
+        cout << "节点[" << root->_kv.first << "]BF错误：记录=" << root->_bf << "，实际=" << actualBF << endl;
+        return false;
+    }
+
+    // 3. 递归校验左右子树
+    return _IsBalanceTree(root->_left) && _IsBalanceTree(root->_right);
+}
+
+// 对外接口：检测整棵树的平衡性
+bool IsBalanceTree()
+{
+    return _IsBalanceTree(_root);
 }
 ```
-# 三、总结
+# 四、AVL 树的总结与拓展
+### 4.1 核心优势
+
+1. **极致平衡**：任意节点左右子树高度差≤1，查询效率稳定；
+2. **时间复杂度**：增删查改均为 O(logN)，无最坏情况；
+3. **原理清晰**：基于二叉搜索树的最小改造，易理解、易实现。
+
+### 4.2 局限性
+
+1. **旋转成本高**：插入 / 删除可能触发多次旋转（最多两次双旋），写操作效率低于红黑树；
+2. **空间开销大**：每个节点需存储父指针和平衡因子，空间利用率低；
+3. **删除逻辑复杂**：本文未实现删除（需处理更多失衡场景），实际应用中删除操作成本更高。
+### 4.3 与红黑树的对比
+
+| 特性   | AVL 树         | 红黑树          |
+| ---- | ------------- | ------------ |
+| 平衡要求 | 严格平衡（高度差≤1）   | 近似平衡（黑高相等）   |
+| 旋转次数 | 插入最多 2 次，删除多  | 插入最多 2 次，删除少 |
+| 空间开销 | 高（存 BF + 父指针） | 中（存颜色 + 父指针） |
+| 适用场景 | 读多写少          | 读写均衡         |
+### 4.4 学习建议
+
+1. 先吃透二叉搜索树的核心规则，再理解 AVL 树的「平衡」本质；
+2. 旋转操作一定要画图分析，重点关注「节点链接」和「平衡因子重置」；
+3. 实现后通过「平衡检测函数」验证，逐步调试旋转逻辑；
+4. 后续可学习红黑树，对比理解「严格平衡」与「近似平衡」的设计思想。
