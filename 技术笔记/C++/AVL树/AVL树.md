@@ -1,16 +1,26 @@
 >**前言：**
->在掌握二叉搜索树（BST）的基础上，我们发现其存在显著缺陷：若插入数据有序，二叉搜索树会退化为单链表，此时增删查改的时间复杂度从 O(logN) 骤降为 O(N)。为解决这一问题，G.M.Adelson-Velsky 和 E.M.Landis 在 1962 年提出了**AVL 树**—— 一种自平衡的二叉搜索树。
+>在掌握二叉搜索树的基础上，我们发现其存在显著缺陷：若插入数据有序，二叉搜索树会退化为单链表，此时增删查改的时间复杂度从`O(logN)`骤降为`O(N)`。为解决这一问题，`G.M.Adelson-Velsky` 和 `E.M.Landis` 在 1962 年提出了**AVL 树**—— 一种自平衡的二叉搜索树。
 >
-AVL 树的核心是在二叉搜索树的基础上引入「平衡因子」和「旋转」机制，强制让树的任意节点左右子树高度差不超过 1，从而将树的高度严格控制在 O(logN)，保证所有操作的时间复杂度稳定在 O(logN)。
+>AVL 树的核心是在二叉搜索树的基础上引入`平衡因子`和`旋转`机制，强制让树的任意节点左右子树高度差不超过 1，从而将树的高度严格控制在`O(logN)`，保证所有操作的时间复杂度稳定在 `O(logN)`。
 # 一、AVL树的概念
-AVL树发明与平衡二叉树，在此之上引入了平衡因子的概念`(平衡因子：右子树的高度 - 左子树的高度)`，任何节点的平衡因子等于`0/1/-1`，AVL树整体节点数量和分布类似完全二叉树，高度控制在`O(logN)`，增删查改的效率也可控制在`O(logN)`，相比二叉搜索树有了本质提升
->平衡因子为0的AVL树是最完美的，但有些情况做不到高度差是0.比如一棵树是2节点，4节点等情况下，高度差最好是1，无法做到高度差是0
+## 1.1 平衡因子
+AVL 树定义**平衡因子（BF）= 右子树高度 - 左子树高度**，且要求**任意节点的平衡因子只能是 -1、0、1**。
+- 平衡因子为 0：节点左右子树高度相等（最优状态）；
+- 平衡因子为 1：右子树比左子树高 1 层；
+- 平衡因子为 - 1：左子树比右子树高 1 层；
+- 平衡因子为 ±2：树失衡，必须通过旋转调整
+>注：偶数个节点的 AVL 树（如 2、4 节点）无法做到所有节点平衡因子为 0，此时允许高度差为 1，这是 AVL 树的「最优妥协」。
+
+## 1.2 AVL 树的特性
+- 继承二叉搜索树的核心规则：`左子树所有节点值 < 根节点值 < 右子树所有节点值`
+- 自平衡特性：插入 / 删除后若失衡，通过旋转恢复平衡
+- 高度严格可控，接近完美二叉树
 >![](图片/AVL树概念01.png)
 >![](图片/AVL树概念02.png)
-# 二、AVL树的实现
+# 二、AVL 树的结构设计
 ## 2.1 AVL树的结构
-可以参照模拟实现二叉搜索树的代码进行对比
-**二叉搜索树：**
+对比二叉搜索树，AVL 树的节点需要新增`父节点指针`和`平衡因子`，同时支持键值对存储（更贴近实际应用场景）
+**二叉搜索树节点（对比参考）：**
 ```cpp
 // 二叉搜索树节点结构
 template<class K>
@@ -30,16 +40,18 @@ struct BSTNode
 };
 ```
 
-**AVL树：**
+**AVL 树节点：**
 ```cpp
 template<class K, class V>
 struct AVLTreeNode
 {
-	pair<K, V> _kv;
-	AVLTreeNode<K, V>* _left;
-	AVLTreeNode<K, V>* _right;
-	AVLTreeNode<K, V>* _parent;
-	int _bf;
+	pair<K, V> _kv;              // 键值对（实用化改造）
+	AVLTreeNode<K, V>* _left;    // 左孩子
+	AVLTreeNode<K, V>* _right;   // 右孩子
+	AVLTreeNode<K, V>* _parent;  // 父节点（旋转时需回溯）
+	int _bf;                     // 平衡因子（初始为0）
+	
+	// 构造函数简化（直接初始化键值对）
 	AVLTreeNode(const pair<K, V>& kv)
 		:_kv(kv)
 		,_left(nullptr)
@@ -49,12 +61,17 @@ struct AVLTreeNode
 	{ }
 };
 ```
-## 2.2 AVL树的插入
-### 2.2.1 AVL树插入一个值的大概过程
-1. 按二叉搜索树规则插入一个值
-2. 更新平衡因子没有出现问题，更新完插入结束
-3. 更新平衡因子过程中出现不平衡，需要利用旋转降低子树的高度
-### 2.2.2 更新平衡因子
+# 三、AVL 树的核心实现
+## 3.1 插入操作（核心）
+AVL 树插入分为`二叉搜索树规则插入 -> 更新平衡因子 -> 失衡则旋转`三步，是整个AVL树的核心逻辑。
+### 3.1.1 插入流程梳理
+1. **基础插入**：按二叉搜索树规则找到插入位置，创建新节点并链接父节点；
+2. **平衡因子更新**：从插入节点的父节点开始向上回溯，更新每个祖先节点的平衡因子；
+3. **平衡检查**：
+    - 若平衡因子为 0：子树高度未变化，停止回溯；
+    - 若平衡因子为 ±1：子树高度增加，继续向上回溯；
+    - 若平衡因子为 ±2：树失衡，执行旋转调整，停止回溯。
+### 3.1.2 更新平衡因子
 **更新原则：**
 - 平衡因子 = 右子树高度 - 左子树高度
 - 插入节点，会增加子树高度而影响当前平衡因子，节点插入右子树，parent的平衡因子++，反之亦然
@@ -69,185 +86,221 @@ struct AVLTreeNode
 **更新到中间节点，3为根的子树高度不变，不会影响上一层，更新结束**
 ![](图片/平衡因子02.png)
 
-**最![](图片/平衡因子03.png)坏更新到根停止**
-### 2.2.3 插入节点及更新平衡因子的代码实现
+**最坏更新到根停止**
+![](图片/平衡因子03.png)
+### 3.1.3 插入节点及更新平衡因子的代码实现
 ```cpp
 template<class K, class V>
-bool insert(const K& key, const V& value)
+class AVLTree
 {
-	// 情况1：树为空
-	if (_root == nullptr)
-	{
-		_root = new Node<K, V>;
-		return tree;
-	}
+    typedef AVLTreeNode<K, V> Node;
+private:
+    Node* _root = nullptr; // 根节点初始化
 
-	// 情况2：树不为空
-	Node* cur = _root;
-	Node* parent = nullptr;
-	while (cur) // 找到空节点
-	{
-		if (cur->_kv < key)
-		{
-			parent = cur;
-			cur = cur->_right;
-		}
-		else if (cur->_kv > key)
-		{
-			parent = cur;
-			cur = cur->_left;
-		}
-		else
-		{
-			return false;
-		}
-	}
+public:
+    bool Insert(const K& key, const V& value)
+    {
+        // 1. 空树直接插入根节点
+        if (_root == nullptr)
+        {
+            _root = new Node(make_pair(key, value));
+            return true;
+        }
 
-	// 插入空节点
-	cur = new Node(key, value);
-	if (parent->_kv < key)
-	{
-		parent->_right = cur;
-	}
-	else
-	{
-		parent->_left = cur;
-	}
-	cur->_parent = parent;
+        // 2. 非空树：按BST规则找插入位置
+        Node* cur = _root;
+        Node* parent = nullptr;
+        while (cur)
+        {
+            if (cur->_kv.first < key) // 键值对比（修正原_kv直接比较的错误）
+            {
+                parent = cur;
+                cur = cur->_right;
+            }
+            else if (cur->_kv.first > key)
+            {
+                parent = cur;
+                cur = cur->_left;
+            }
+            else
+            {
+                // 键已存在，插入失败（符合set/map的特性）
+                return false;
+            }
+        }
 
-	// 更新平衡因子
-	while (parent)
-	{
-		// 更新平衡因子
-		if (cur == parent->_left)
-			parent->_bf--;
-		else
-			parent->_bf++;
+        // 3. 创建新节点并链接到父节点
+        cur = new Node(make_pair(key, value));
+        if (parent->_kv.first < key)
+        {
+            parent->_right = cur;
+        }
+        else
+        {
+            parent->_left = cur;
+        }
+        cur->_parent = parent; // 维护父节点指针
 
-		if (parent->_bf == 0)
-		{
-			// 平衡退出
-			break;
-		}
-		else if (parent->_bf == 1 || parent->_bf == -1)
-		{
-			// 往上更新
-			cur = parent;
-			parent = parent->_parent;
-		}
-		else if(parent->_bf == 2 || parent->_bf == -2)
-		{
-			// 不平衡，旋转处理
+        // 4. 回溯更新平衡因子 + 平衡检查
+        while (parent)
+        {
+            // 4.1 更新当前父节点的平衡因子
+            if (cur == parent->_left)
+                parent->_bf--; // 左子树新增节点，BF-1
+            else
+                parent->_bf++; // 右子树新增节点，BF+1
 
-		}
-		else
-		{
-			assert(false);
-		}
-	}
-	return true;
-}
+            // 4.2 平衡因子状态判断
+            if (parent->_bf == 0)
+            {
+                // 平衡因子归0：子树高度未变，无需继续回溯
+                break;
+            }
+            else if (parent->_bf == 1 || parent->_bf == -1)
+            {
+                // 平衡因子从0→±1：子树高度增加，继续向上更新
+                cur = parent;
+                parent = parent->_parent;
+            }
+            else if (parent->_bf == 2 || parent->_bf == -2)
+            {
+                // 失衡：根据失衡类型旋转
+                if (parent->_bf == 2)
+                {
+                    // 右子树过高：分两种情况
+                    if (cur->_bf == 1)
+                    {
+                        // 右单旋（直线型失衡）
+                        RotateL(parent);
+                    }
+                    else // cur->_bf == -1
+                    {
+                        // 右左双旋（折线型失衡）
+                        RotateRL(parent);
+                    }
+                }
+                else // parent->_bf == -2
+                {
+                    // 左子树过高：分两种情况
+                    if (cur->_bf == -1)
+                    {
+                        // 右单旋（直线型失衡）
+                        RotateR(parent);
+                    }
+                    else // cur->_bf == 1
+                    {
+                        // 左右双旋（折线型失衡）
+                        RotateLR(parent);
+                    }
+                }
+                // 旋转后平衡恢复，停止回溯
+                break;
+            }
+            else
+            {
+                // 平衡因子异常（如±3），说明代码逻辑错误
+                assert(false && "平衡因子超出合法范围");
+            }
+        }
+
+        return true;
+    }
+
+private:
+    // 后续旋转函数放在这里...
+};
 ```
-## 2.3 旋转
-### 2.3.1 旋转的原则
-- 保持搜索树的规则
-- 平衡被破坏的树，用旋转降低高度
-旋转总共分为四种：左单旋/右单旋/左右双旋/右左双旋
-### 2.3.2 右单旋
+## 3.2 旋转操作
+旋转的核心目标：**在保持二叉搜索树规则的前提下，降低失衡子树的高度，恢复平衡**。
+旋转分为四种类型：右单旋`(RotateR)`、左单旋`(RotateL)`、左右双旋`(RotateLR)`、右左双旋`(RotateRL)`
+### 3.2.1 右单旋（RotateR）
+**适用场景**：失衡节点的平衡因子为 - 2，且左孩子的平衡因子为 - 1（左子树的左子树过高，直线型失衡）
+**核心逻辑**：将失衡节点的左孩子作为新根，失衡节点作为新根的右孩子，原左孩子的右子树挂到失衡节点的左子树。
+
 **以下5张图解释了右单旋的抽象情况，可以解决大部分右单旋的问题**
 ![](图片/右单旋图1.png)
 ![](图片/右单旋图2.png)
 ![](图片/右单旋图3.png)
 ![](图片/右单旋图4.png)
 ![](图片/右单旋图5.png)
-### 2.3.3 右单旋代码实现
-模拟实现左单旋和右单旋最重要的就是画图
+
 ```cpp
-// 右旋
 void RotateR(Node* parent)
 {
-	// 最核心部分
-	/*Node* SubL = parent->_left;
-	Node* SubLR = SubL->_right;
+    Node* subL = parent->_left;    // 失衡节点的左孩子（新根）
+    Node* subLR = subL->_right;    // 新根的右子树（需要转移）
+    Node* pParent = parent->_parent; // 失衡节点的父节点
 
-	parent->_left = SubLR;
-	SubL->_right = parent;*/
+    // 1. 转移subLR：挂到parent的左子树
+    parent->_left = subLR;
+    if (subLR)
+        subLR->_parent = parent;
 
-	
-	// 核心三节点，不需要其他节点
-	Node* SubL = parent->_left;
-	Node* SubLR = SubL->_right;
+    // 2. 父节点降级：parent作为subL的右孩子
+    subL->_right = parent;
+    parent->_parent = subL;
 
+    // 3. 链接新根到原父节点
+    if (pParent == nullptr)
+    {
+        // 原parent是根节点，更新根
+        _root = subL;
+        subL->_parent = nullptr;
+    }
+    else
+    {
+        if (pParent->_left == parent)
+            pParent->_left = subL;
+        else
+            pParent->_right = subL;
+        subL->_parent = pParent;
+    }
 
-	parent->_left = SubLR;		// 1.需画图理解
-
-	// 对应h = 0
-	if(SubLR != nullptr)
-		SubLR->_parent = parent;	// 2.要满足父节点(左指针或右指针) -> 子节点，子节点(父指针) -> 父节点
-
-	SubL->_right = parent;		// 满足 1.
-	parent->_parent = SubL;		// 满足 2.
-
-
-	Node* pParent = parent->_parent;
-	if (parent == _root)	/*根为根节点*/
-	{
-		_root = SubL;
-		SubL->_parent = nullptr;
-	}
-	else	/*根为子树*/
-	{
-		if (pParent->_left == parent)
-		{
-			pParent->_left = SubL;
-		}
-		else
-		{
-			pParent->_right = SubL;
-		}
-	}
-	
-	// 旋转完，更新平衡因子
-	SubL->_bf = parent->_bf = 0;
+    // 4. 重置平衡因子（旋转后子树高度恢复，BF归0）
+    parent->_bf = subL->_bf = 0;
 }
 ```
-### 2.3.4 左单旋代码实现
+### 3.2.2 左单旋（RotateL）
+**适用场景**：失衡节点的平衡因子为 2，且右孩子的平衡因子为 1（右子树的右子树过高，直线型失衡）
 ```cpp
-// 左旋
 void RotateL(Node* parent)
 {
-	// 核心三节点，不需要其他节点
-	Node* SubR = parent->_right;
-	Node* SubRL = SubR->_left;
+    Node* subR = parent->_right;    // 失衡节点的右孩子（新根）
+    Node* subRL = subR->_left;      // 新根的左子树（需要转移）
+    Node* pParent = parent->_parent; // 失衡节点的父节点
 
-	parent->_right = SubRL;
-	SubR->_left = parent;
-	parent->_parent = SubR;
-	if(SubRL != nullptr)
-		SubRL->_parent = parent;
+    // 1. 转移subRL：挂到parent的右子树
+    parent->_right = subRL;
+    if (subRL)
+        subRL->_parent = parent;
 
-	Node* pParent = parent->_parent;
-	if (parent == _root)
-	{
-		_root = SubR;
-		SubR->_parent = nullptr;
-	}
-	else
-	{
-		if (pParent->_left == parent)
-		{
-			pParent->_left = SubR;
-		}
-		else
-		{
-			pParent->_right = SubR;
-		}
-	}
+    // 2. 父节点降级：parent作为subR的左孩子
+    subR->_left = parent;
+    parent->_parent = subR;
 
-	parent->_bf = SubR->_bf = 0;
+    // 3. 链接新根到原父节点
+    if (pParent == nullptr)
+    {
+        _root = subR;
+        subR->_parent = nullptr;
+    }
+    else
+    {
+        if (pParent->_left == parent)
+            pParent->_left = subR;
+        else
+            pParent->_right = subR;
+        subR->_parent = pParent;
+    }
+
+    // 4. 重置平衡因子
+    parent->_bf = subR->_bf = 0;
 }
 ```
-### 2.3.5 左右双旋
+### 3.2.3 左右双旋（RotateLR）
+**适用场景**：失衡节点的平衡因子为 - 2，且左孩子的平衡因子为 1（左子树的右子树过高，折线型失衡）。
+**核心逻辑**：先对左孩子做左单旋，再对失衡节点做右单旋。
+
 图下右单旋和左右双旋的比较可进行总结：
 **右单旋 / 左单旋：** 节点之间成一条直线（右单旋只解决纯粹的左边搞）
 **左右双旋 / 右左双旋：** 节点之间成一条曲折的线（但在b子树不单纯是左边高，只是对于10是左边高，对于5是右边高，需旋转两次才能解决。对5为旋转点进行一次左单旋，对10为旋转点进行一次右单旋）
