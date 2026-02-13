@@ -1,5 +1,7 @@
 >**前言：**
->上篇中模拟实现了AVLTree和RBTree，这次就拿RBTree来封装实现set和map
+>上篇中模拟实现了AVLTree和RBTree，这次就从零开始模拟实现 RBTree 封装 Myset 和 Mymap
+>
+>**花了10小时整理的代码，真的太辛苦了，请各位多多点赞ヾ(≧▽≦*)o**
 
 # 源码及框架
 
@@ -266,7 +268,9 @@ public:
 	- 当 cur 访问到根节点，如果 cur 所在根节点的父节点为空，那么就访问完了整棵树`it->nullptr == end`
 - 关于end()：我们看下图，如果 it 指向50时，++it 指向40，直到循环遍历到18，根节点18没有父亲，就把 it 中的节点指针置为 nullptr，用 nullptr 去充当 end。需要注意的是stl源码空，红黑树增加了一个哨兵位头结点做为 end()，这哨兵位头结点和根互为父亲，左指向最左结点，右指向最右结点。相比我们用 nullptr 作为 end()，差别不大，他能实现的，我们也能实现。只是 -end() 判断到结点时空，特殊处理一下，让迭代器结点指向最右结点。具体参考迭代器--实现。
 - operator++ 访问顺序为 左子树 -> 根节点 -> 右子树，operator-- 访问顺序为 右子树 -> 根节点 -> 左子树
-- set 的 iterator 不支持修改，把 set 的第二个模板参数改成 const K 即可，`RBTree<K, pair<const K, V>, MapKeyOfT> _t;`需要zhu'y
+- set 的 iterator 不支持修改，把 set 的第二个模板参数改成 const K 即可，`RBTree<K,const K, SetKeyOfT> _t;`需要注意有坑，详细部分看代码解析
+- map 的 iterator 不支持修改 key，但是可以修改 value，把第二个模板参数 pair 的第一个参数改成 const K 即可，`RBTree<K, pair<const K, V>, MapKeyOfT> _t;`
+- 还要很多重要的细节，如`1.支持[]的插入、查找和修改  2.反向迭代器的注意事项  3.模板内嵌的处理`等等，请看下列从零开始模拟实现RBTree封装Myset和Mymap
 - ![](图片/一颗红黑树.png)
 ```cpp
 // Myset.h
