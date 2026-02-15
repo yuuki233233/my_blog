@@ -5,16 +5,16 @@
 
 # 源码及框架
 
-- 下图框架，set（key） 和 map（key/value）没有直接写死，而是通过第二个模板参数 Value 决定_rb_tree_node中存储的数据类。 用 set 实例化 rb_tree，第二个模板参数实例化为 key，用 map 实例化 rb_tree，第二个模板参数实例化为 `pair<const key, T>`
-- **注意**：源码里 `pair<const key, T>` ，T 代表 value，而内部写的 value_type 反而是红黑树节点中存储的数据类型
-- **问题**：既然已经确定了_rb_tree_node中的类型，那么为什么还要写模板参数 key ？
-	- 对 **insert** ：set 插入的是 key 对象，map 插入的是 pair 对象，可以用 Value 模板参数
-	- 对 **find** ：set 查找的是 key 对象，map 查找的是 key。由于在 map 中， Value 是 pair 类型，所以不能用 Value 模板参数，需额外添加个 key 的模板参数
+- 下图框架，`set（key）` 和 `map（key/value）`没有直接写死，而是通过第二个模板参数` Value` 决定`_rb_tree_node`中存储的数据类。 用 `set` 实例化 `rb_tree`，第二个模板参数实例化为 `key`，用 `map` 实例化 `rb_tree`，第二个模板参数实例化为 `pair<const key, T>`
+- **注意**：源码里 `pair<const key, T>` ，`T` 代表 `value`，而内部写的 `value_type` 反而是红黑树节点中存储的数据类型
+- **问题**：既然已经确定了 `_rb_tree_node` 中的类型，那么为什么还要写模板参数 `key` ？
+	- 对 **insert** ：`set` 插入的是 `key` 对象，`map` 插入的是 `pair` 对象，可以用 `Value` 模板参数
+	- 对 **find** ：`set` 查找的是 `key` 对象，`map` 查找的是 `key`。由于在 `map` 中， `Value` 是 `pair` 类型，所以不能用 `Value` 模板参数，需额外添加个 `key` 的模板参数
 ![](图片/QQ20260213-164357.png)
 # 二、模拟实现 map 和 set
 ## 2.1 实现出复用红黑树的框架（支持insert）
-- 在 stl_map 中，第二个模板参数用的是 T，改为 V（Value）会更好
-- set 直接用`data(key)` 比较是没有问题的，但是 map 不能用 pair 进行比较，map 的比较要用到 `data.first(pair<K, V>._kv.first)`，但 set 又不支持用 first。如何解决：需另外用到仿函数(KeyOfT)
+- 在 `stl_map` 中，第二个模板参数用的是 `T`，改为 `V（Value）`会更好
+- `set` 直接用`data(key)` 比较是没有问题的，但是 `map` 不能用 `pair` 进行比较，`map` 的比较要用到 `data.first(pair<K, V>._kv.first)`，但 `set` 又不支持用 `first`。如何解决：需另外用到 `仿函数(KeyOfT)`
 ```cpp
 // Mayset.h
 namespace yuuki
@@ -257,10 +257,10 @@ public:
 ```
 ## 2.2 支持iterator迭代器
 **iterator实现思路分析：**
-- list 和 RBTree 本质上是各个节点链接而成，但不同的是链接的方式不同。list：{节点 -> 节点}，RBTree：{节点} -> {节点1，节点2}
-- iterator 实现的框架于 list 的 iterator 思路类似，用一个类型封装节点的指针，在通过重载运算符实现，迭代器像指针一样访问
-- operator++ 和 operator-- 是实现 iterator 迭代器的难点。首先是找 begin() 最左节点 与 end()最右节点，其次再是控制局部遍历
-- 关于operator++：
+- `list` 和 `RBTree` 本质上是各个节点链接而成，但不同的是链接的方式不同。`list`：{节点 -> 节点}，`RBTree`：{节点} -> {节点1，节点2}
+- `iterator` 实现的框架于 `list` 的 `iterator` 思路类似，用一个类型封装节点的指针，在通过**重载运算符实现**，迭代器像指针一样访问
+- `operator++` 和 `operator--` 是实现 `iterator` 迭代器的难点。首先是找 `begin() 最左节点 `与 `end()最右节点`，其次`再是控制局部遍历`
+- **关于operator++：**
 	- 当 cur（所在节点）的左子树被访问完，cur 本身也被访问了，于是访问 cur 下一个节点（右节点）的最左节点
 	- 当 cur（所在节点）的右子树被访问完，cur 本身也被访问了，这就代表 cur 为根的一整棵树被访问完了，于是要到 cur 的父亲节点
 		- cur 在父亲节点的左：访问完了 cur 一整棵树，由于 cur 在父亲的左节点，代表父亲的左子树遍历完了，于是到父亲节点即可
