@@ -6,7 +6,6 @@
 > 代码仓库：[https://github.com/yuuki233233/learning-journey](https://github.com/yuuki233233/learning-journey) 
 > CSDN 主页：[https://blog.csdn.net/yuuki233233](https://blog.csdn.net/yuuki233233)
 
-
 # 一、源码及框架（为什么需要KeyOfT）
 - 下图框架，`set（key）` 和 `map（key/value）`没有直接写死，而是通过第二个模板参数` Value` 决定`_rb_tree_node`中存储的数据类。 用 `set` 实例化 `rb_tree`，第二个模板参数实例化为 `key`，用 `map` 实例化 `rb_tree`，第二个模板参数实例化为 `pair<const key, T>`
 - **注意**：源码里 `pair<const key, T>` ，`T` 代表 `value`，而内部写的 `value_type` 反而是红黑树节点中存储的数据类型
@@ -458,11 +457,11 @@ private:
 	Node* _root = nullptr;
 };
 ```
-
->- 中序遍历（左根右）。 
->- ++：右子树最左 / 向上找右祖先。
->- --：左子树最右 / 向上找左祖先。 
->- --end()特殊处理：从 `nullptr` 跳到最右节点。
+**总结**
+>- 中序遍历（左根右）
+>- ++：右子树最左 / 向上找右祖先
+>- --：左子树最右 / 向上找左祖先
+>- --end()特殊处理：从 `nullptr` 跳到最右节点
 
 ## 2.4 Myset & Mymap封装
 - **set：RBTree（const K防止修改key）**
@@ -1010,7 +1009,7 @@ public:
 		{	// 条件parent：防止空指针（_root节点的父亲为NULL）
 			Node* grandfater = parent->_parent;
 
-			if (parent = grandfater->_left) // 叔叔在右边
+			if (parent == grandfater->_left) // 叔叔在右边
 			{
 				//   g
 				// p   u
