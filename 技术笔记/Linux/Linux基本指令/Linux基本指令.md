@@ -1,48 +1,4 @@
-# ls 指令
-**语法：**  `ls [选项] [目录/文件]`
-**功能：** 对于目录，该命令列出该目录下的所有子目录与文件。对于文件，将列出文件名以及其他信息。
-**常用选项：**
->- -a 列出目录下的所有文件，包括以 `.`开头的隐藏文件
->- -l 列出文件的向下信息
->- -R 列出所有子目录下的文件。(递归)
->- -d 将目录像文件一样显示，而不是显示其下的文件。如：ls -d [指定目录]
->- -i 输出文件的`i`节点的索引信息。如：ls -ai [指定文件]
->- -k 以`k`字节的形式表示文件的大小。如：ls -alk [指定文件]
->- -n 用数字的UID，GID代替名称。(介绍UID，GID)
->- -f 在每个文件名后附上字符以说明该文件的类型，`*`表示可执行的普通文件；`/`表示目录；`@`表示符号链接；`|`表示`FIFOs`；`=`表示套接字。(目录类型识别)
->- -r 对目录反向排序
->- -t 以时间排序
->- -s 在`l`文件名后输出该文件的大小。(大小排序，如何找到目录下的最大的文件)
->- -1 一行只输出一个文件
 
-# grep指令
-
-# top
-# zip/unzip指令(需安装)
-## 一、安装zip/unzip指令
-在使用zip和unzip命令时，要在对应的服务器进行安装
-**Debian/Ubantu系列**
-```Bash
-apt update && apt install zip unzip -y
-```
-**unzip**也一同安装，解压zip文件会用到
-
-**CentOS/RHEL系列**
-```Bash
-yum install zip unzip -y
-```
-
-# rz和sz命令(需安装)
-## 一、安装sz/rz指令
-rz、sz时用来在本地和服务器之间传文件的工具
-**Debian/Ubantu系列**
-```bash
-sudo apt update && sudo apt install lrzsz -y
-```
-**CentOS/RHEL系列**
-```bash
-yum install -y lrzsz
-```
 ## 二、sz/rz远程传输
 **核心格式：** `sz 压缩包.zip`
 **1.基础用法**
@@ -147,3 +103,38 @@ zip -r myproject.zip myproject/
 
 # 解压到指定目录
 unzip myproject.zip -d destination/
+```
+
+### tar（Linux 自带，最推荐）
+
+```Bash
+# 打包 + gzip 压缩（最常用 .tar.gz）
+tar czvf backup.tar.gz folder/
+
+# 解压
+tar xzvf backup.tar.gz
+
+# 解压到指定目录
+tar xzvf backup.tar.gz -C /path/to/dir
+
+# 只查看内容（不解压）
+tar tvf backup.tar.gz
+```
+
+## 8. 其他高频小工具
+
+- `man 命令` → 查看手册（按 q 退出）
+- `alias ll='ls -lah' `→ 设置快捷别名（写到 ~/.bashrc 永久生效）
+- `cal `→ 显示日历
+- `bc` → 简单计算器
+- `uname -a` → 查看系统信息
+- `tree` → 显示目录树状结构（需安装：`sudo apt install tree`）
+    - 推荐：`tree -C -L 3`（彩色 + 3 层）
+
+## 安全小贴士（新手必看）
+
+1. 永远不要随便用 `rm -rf /` 或 `rm -rf *`（尤其是 sudo）
+2. 删除前先用 `ls` 确认目标
+3. 重要操作加 `-i` 确认
+4. 学习用 `man 命令` 或 `命令 --help` 获取最新准确帮助
+5. 多练习！建议在虚拟机或 WSL 上随便折腾
