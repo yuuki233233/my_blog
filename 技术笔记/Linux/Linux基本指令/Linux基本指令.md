@@ -1,29 +1,8 @@
 
-## 二、sz/rz远程传输
-**核心格式：** `sz 压缩包.zip`
-**1.基础用法**
-- Linux中传到Windows：`sz test.zip`
-- Windows传到Linux：`rz`
-- Linux传到Linux：`scp 压缩文件.zip 用户名@公网ip：目标机器指定路径`
-# tar指令(Linux自带)
-**核心格式：** `tar [参数] 文件/文件夹 ...`
-**1.常实用参数**：
-- `-c`：创建压缩包
-- `-z`：把打包文件进行压缩
-- `-f`：新的压缩包名称
-- `-x`：解压文件
-- `-v`：显示解压过程
-**2.基础用法**
-- 压缩文件/文件夹：`tar czf test.tgz test.txt`
-- 解压文件/文件夹：`tar xzf test.tgz`
-- 解压到指定目录：`tar xzf test.tgz -C 目录路径`
-
-
 >**作者**：yuuki233233
 >**目标**：德国 CS 本科 + 特斯拉软件工程师
 >**适用人群**：零基础想快速上手 Linux 命令行的大一/自学者
 >**学习建议**：先在 Ubuntu 虚拟机或云服务器上手敲 3-5 遍，边敲边记笔记
-
 
 # Linux 常用命令速查 & 入门总结（适合新手）
 
@@ -32,6 +11,7 @@
 ## 1. 定位与路径相关（先学会找路）
 
 ### pwd - 显示当前工作目录
+
 ```bash
 pwd # 输出示例：/home/yuuki/projects
 ```
@@ -64,35 +44,74 @@ ls -lhS | head -n 5   # 按大小降序，前5个
 ```
 **小技巧**：`ls -lah --color=auto` 几乎是所有人日常最爱用的组合。
 
-## 2. 创建 / 删除
+## 2. 创建/删除/移动/复制
 
-| 命令      | 说明                 | 常用示例                                                                  |
-| ------- | ------------------ | --------------------------------------------------------------------- |
-| `touch` | 创建空文件 / 更新文件时间戳    | `touch newfile.txt`                                                   |
-| `mkdir` | 创建目录               | `mkdir mydir` <br>`mkdir -p deep/nested/dir`（递归创建）                    |
-| `rmdir` | 删除**空**目录          | `rmdir empty_dir`                                                     |
-| `rm`    | 删除文件或目录（**非常危险**！） | `rm file.txt` <br>`rm -i file.txt`（逐个确认）<br>`rm -rf dir/`（强制递归删除，慎用！） |
+### touch - 创建空文件 / 更新时间戳
 
+```Bash
+touch newfile.txt
+touch file1.txt file2.cpp
+```
+
+### mkdir - 创建目录
+
+```Bash
+mkdir newdir
+mkdir -p a/b/c/d     # 递归创建多级目录
+```
+
+### rm - 删除文件/目录（小心！）
+
+```Bash
+rm file.txt          # 删除文件
+rm -r dir            # 递归删除目录
+rm -rf dir           # 强制递归删除（危险！慎用）
+rm -i *.log          # 删除前询问确认
+```
+
+**安全写法**：先用 ls 确认要删的东西，再 rm。
 **重要警告**：`rm -rf /` 或 `rm -rf /*` 会毁掉整个系统！新手建议先 `alias rm='rm -i'` 强制确认。
 
-## 3. 复制、移动、重命名
+### cp - 复制文件/目录
 
-| 命令   | 说明                  | 示例                                      |
-|--------|-----------------------|-------------------------------------------|
-| `cp`   | 复制文件/目录         | `cp file.txt backup/` <br>`cp -r dir1 dir2`（复制目录） |
-| `mv`   | 移动 或 重命名        | `mv old.txt new.txt`（重命名）<br>`mv file.txt /tmp/`（移动） |
+```Bash
+cp file.txt /backup/
+cp -r dir /backup/   # 递归复制目录
+cp -i file.txt dest/ # 覆盖前询问
+```
+
+### mv - 移动/重命名
+
+```Bash
+mv oldname.txt newname.txt   # 重命名
+mv file.txt /new/path/       # 移动
+mv -i file.txt dest/         # 覆盖前询问
+```
 
 **常用选项**：`-i`（覆盖前询问）、`-f`（强制覆盖）、`-v`（显示过程）
 
-## 4. 查看文件内容
+## 3. 查看文件内容
 
-| 命令     | 说明                              | 常用用法                                  |
-|----------|-----------------------------------|-------------------------------------------|
-| `cat`    | 显示全部内容                      | `cat file.txt` <br>`cat -n file.txt`（带行号） |
-| `more`   | 分页查看（只能向下）              | `more long.log`                           |
-| `less`   | 强大分页查看（上下翻页、搜索）    | `less /var/log/syslog` <br> 搜索：`/keyword` 然后 n/N |
-| `head`   | 查看文件开头（默认10行）          | `head -n 20 access.log`                   |
-| `tail`   | 查看文件结尾（最常用于看日志）    | `tail -n 50 error.log` <br>`tail -f access.log`（实时跟踪） |
+### cat - 查看文件内容
+
+```Bash
+cat file.txt
+cat -n file.txt      # 显示行号
+```
+
+### less / more - 分页查看（大文件推荐 less）
+
+```Bash
+less log.txt         # 上下翻页，q 退出
+```
+
+### head / tail - 查看头/尾
+
+```Bash
+head -n 10 log.txt   # 前10行
+tail -n 20 log.txt   # 后20行
+tail -f log.txt      # 实时跟踪日志（开发最常用！）
+```
 
 **less 常用快捷键**：
 - `/关键词` → 向下搜
@@ -100,27 +119,49 @@ ls -lhS | head -n 5   # 按大小降序，前5个
 - `n` / `N` → 下一个 / 上一个
 - `q` → 退出
 
-## 5. 查找与搜索
+## 4. 查找与搜索
 
-| 命令     | 说明                              | 示例                                      |
-|----------|-----------------------------------|-------------------------------------------|
-| `find`   | 在目录树中查找文件                | `find /home -name "*.txt"` <br>`find . -type d`（只找目录） |
-| `grep`   | 在文本中搜索字符串                | `grep "error" app.log` <br>`grep -r "todo" .`（递归当前目录） |
-| `which`  | 查找命令的可执行文件路径          | `which python`                            |
-| `whereis`| 查找命令的二进制、源代码、手册    | `whereis ls`                              |
+### find - 强大的文件查找
 
-## 6. 权限与信息
+```Bash
+find /home -name "*.cpp"          # 找所有 .cpp 文件
+find . -type f -size +10M         # 找当前目录大于10MB的文件
+find . -mtime -7                  # 7天内修改的文件
+```
 
-- `chmod` 修改权限（r=4, w=2, x=1）
-  - `chmod 755 script.sh`（拥有者全权，其他人可读可执行）
-  - `chmod +x run.sh`（快速加执行权限）
-- `chown` 改拥有者：`chown user:group file`
-- `date` 显示/设置时间
-  - `date` 
-  - `date +"%Y-%m-%d %H:%M:%S"`
-  - `date +%s`（时间戳）
+### grep - 文本搜索（神器！）
 
-## 7. 压缩与解压（最常用两种格式）
+```Bash
+grep "error" log.txt              # 查找包含 error 的行
+grep -r "TODO" .                  # 递归搜索当前目录
+grep -i "bug" *.cpp               # 忽略大小写
+grep -n "warning" *.log           # 显示行号
+```
+## 5. 权限管理（chmod / chown）
+
+### chmod - 修改权限
+
+```Bash
+chmod 755 script.sh     # rwxr-xr-x
+chmod u+x file          # 给拥有者加执行权限
+chmod -R 644 dir/       # 递归修改目录下文件
+```
+
+**数字权限速查**：
+
+- 7 = rwx (读写执行)
+- 6 = rw- (读写)
+- 5 = r-x (读执行)
+- 4 = r-- (读)
+
+### chown - 修改所有者
+
+```Bash
+sudo chown yuuki file.txt
+sudo chown -R yuuki:yuuki /project/
+```
+
+## 6. 压缩与解压（最常用两种格式）
 
 ### zip / unzip（需安装）
 
@@ -151,7 +192,7 @@ tar xzvf backup.tar.gz -C /path/to/dir
 tar tvf backup.tar.gz
 ```
 
-## 8. 其他高频小工具
+## 7. 其他高频小工具
 
 - `man 命令` → 查看手册（按 q 退出）
 - `alias ll='ls -lah' `→ 设置快捷别名（写到 ~/.bashrc 永久生效）
@@ -160,7 +201,27 @@ tar tvf backup.tar.gz
 - `uname -a` → 查看系统信息
 - `tree` → 显示目录树状结构（需安装：`sudo apt install tree`）
     - 推荐：`tree -C -L 3`（彩色 + 3 层）
-
+- `df/du 磁盘空间`
+	- ```Bash
+		df -h           # 人类可读磁盘使用情况
+		du -sh /dir     # 查看目录总大小
+	  ```
+- `ps/top/htop 进程查看`
+	- ```Bash
+		ps aux          # 查看所有进程
+		top             # 实时监控（q 退出）
+		htop            # 更友好版本（需安装）
+	  ```
+- `kill 杀死进程`
+	- ```Bash
+		kill 12345      # 温和终止
+		kill -9 12345   # 强制杀死
+	  ```
+- `scp 远程复制文件`
+	- ```Bash
+		scp file.txt user@remote:/path/      # 本地 → 远程
+		scp user@remote:/path/file.txt .     # 远程 → 本地
+	  ```
 ## 安全小贴士（新手必看）
 
 1. 永远不要随便用 `rm -rf /` 或 `rm -rf *`（尤其是 sudo）
@@ -168,3 +229,8 @@ tar tvf backup.tar.gz
 3. 重要操作加 `-i` 确认
 4. 学习用 `man 命令` 或 `命令 --help` 获取最新准确帮助
 5. 多练习！建议在虚拟机或 WSL 上随便折腾
+
+代码仓库：[https://github.com/yuuki233233/cpp-learning-journey](https://github.com/yuuki233233/cpp-learning-journey) 
+CSDN 主页：[https://blog.csdn.net/yuuki233233](https://blog.csdn.net/yuuki233233)
+
+欢迎评论交流，一起卷 Linux ！
