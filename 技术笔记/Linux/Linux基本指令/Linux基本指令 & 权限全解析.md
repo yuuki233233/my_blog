@@ -250,7 +250,6 @@ tar tvf backup.tar.gz
 2. 删除前先用 `ls` 确认目标
 3. 重要操作加 `-i` 确认
 4. 学习用 `man 命令` 或 `命令 --help` 获取最新准确帮助
-5. 多练习！建议在虚拟机或 WSL 上随便折腾
 
 代码仓库：[https://github.com/yuuki233233/cpp-learning-journey](https://github.com/yuuki233233/cpp-learning-journey) 
 CSDN 主页：[https://blog.csdn.net/yuuki233233](https://blog.csdn.net/yuuki233233)
