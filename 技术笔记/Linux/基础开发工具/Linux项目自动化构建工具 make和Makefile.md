@@ -79,13 +79,13 @@ clean:
 myproc:myproc.c
 	gcc -o myproc myproc.c
 ```
-会因为顺序问题，执行 `make` 时就变成 `rm -f myproc`
+会因为顺序问题，执行 `make` 时就变成 `rm -f myproc`，**但我们都会把创建文件放在第一个**
 
-## 文件属性 及 时间问题
+### 文件属性 及 时间问题
 
 在执行多个 `make` 时，只有第一次是通过的，其余都报错，那是因为两个文件 `myproc.c` `myproc` 的属性问题而导致的
 
-### 文件信息
+#### 文件信息
 
 我们用 `stat myproc.c`，能看到文件的基本信息，包括：**查看时间、修改时间、属性修改时间**
 ```bash
@@ -103,19 +103,19 @@ Birth: -
 | 文件信息 | Access            | Modify | Change                           |
 | ---- | ----------------- | ------ | -------------------------------- |
 | 修改   | cat（只对第一次 cat 有效） | vim    | vim、chmod（modify 更改，Change也跟着更改） |
-### Modify 时间问题
+#### Modify 时间问题
 
 - 不能  `make` 多次，与 `Modify` 的修改时间息息相关
 - 想用多次 `make` 需要更改 `Modify` 的修改时间
 
-### 为什么不被执行多次 make
+#### 为什么不被执行多次 make
 
 1. 默认老代码不做重新编译（当有1000份文件时，只修改了10份文件，就只 `make` 修改过的文件，若` make 1000份文件`，对性能会有消耗）
 2. 怎么不做重新编译的？（每个文件都有不同的修改时间(Modify)，以 `myproc` 和 `myproc.c` 为例：）
 	- 当 `myproc.c` 时间比 `myproc` 晚时，`make` 时就不会执行，因为当成 `myproc.c` 是老文件，没有被修改
 	- 要是 `myproc.c` 被修改时，`myproc.c` 时间比 `myproc` 早，`make` 时就会执行，因为当成 `myproc.c` 是新文件，已被修改
 
-### .PHONY 伪目标使用
+#### .PHONY 伪目标使用
 
 参考以下 `Makefile` 文件
 ```bash
@@ -130,3 +130,15 @@ myproc:myproc.c
 会发现可以执行多次 `make`，是因为 `.PHONY` 类似一张通行证，可以一直反复往来一个地方，所以可以无视 `myproc` 文件，执行多次 `make`
 
 为什么给**删除**通行：主要是因为项目清理时，要保证每一次清理时是干净的，就不会出现奇奇怪怪的错误
+
+### Makefile 深层理解
+
+>机器只能识别 `.o` 文件，那为什么 `Makefile` 文件中，可以写成 `myproc:myproc.c` 呢？
+
+那是因为 Linux 中优化了 `Makefile`，省略了许多步骤，完整的路线图如下：
+```bash
+
+
+#myproc:myproc.c
+#	gcc -o myproc myproc.c
+```
