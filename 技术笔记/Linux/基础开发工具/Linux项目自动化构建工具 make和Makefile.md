@@ -161,13 +161,17 @@ rm -f *.i *.s *.o myproc
 
 ### Makefile 定义变量
 
+`Linux` 中的 `Makefile` 里定义变量与C语言中的宏定义很像，本质是替换。C语言的语法为 `#default`、`Linux` 中则为 `$()`
+特殊语法：`$()` 替换内容、`$^` 表示源文件、`$@` 表示依赖文件
 ```bash
+# 定义的变量
 BIN=proc.exe
 CC=gcc
 SRC=myproc.c
 FLAGS=-o
 RM=rm -f
 
+# 替换$()
 $(BIN):$(SRC)
 $(CC) $(FLAGS) $@ $^ # $@ = BIN   $^ = SRC
 .PHONY:
@@ -176,9 +180,26 @@ $(RM) $(BIN)
 
 .PHONY:test
 test:
-@echo $(BIN)
-@echo $(CC)
-@echo $(SRC)
-@echo $(FLAGS)
-@echo $(RM)
+@echo $(BIN)     # 输出 proc.exe
+@echo $(CC)      # 输出 gcc
+@echo $(SRC)     # 输出 myproc.c
+@echo $(FLAGS)   # 输出 -o
+@echo $(RM)      # 输出 rm -f
+```
+
+### 多文件 Makefile
+
+多文件的 `Makefile` 写法 与  上述单文件的 `Makefile` 写法不同，如下
+```bash
+BIN=proc.exe
+CC=gcc
+SRC=myproc.c
+OBJ=myproc.o
+LFLAGS=-o
+FLAGS=-c
+RM=rm -f
+
+$(BIN) : $(OBJ)
+	@(CC) $(LFLAGS) $@ $^
+	@echo "linking ... $^ to $@"
 ```
