@@ -1,8 +1,11 @@
-## make 和 makefile 是啥
-make 是一个命令
-makefile 是一个文件
+## 为什么有 make 和 makefile
+
+- 一个工程的源文件不计其数，按类型、功能、模块分别放在若干个目录中，`makefile` 定义了一个系列的规则来指定，哪些文件需要先编译，哪些文件需要后编译，哪些文件需要重新编译，甚至进行更复杂的功能操作
+- **makefile 好处**：自动化编译（一旦写好，只需一个 `make` 命令让整个工程完全自动编译）
+- **make（命令）**：解释 `makefile` 中指令的命令工具
 
 ## make 和 makefile 的基础使用
+可写成 `makefile` 或 `Makefile`
 
 ### 创建文件
 先创建一个目录，在目录里分别创建 `Makefile` 与 `myproc.c` 2个文件
@@ -132,8 +135,8 @@ myproc:myproc.c
 为什么给**删除**通行：主要是因为项目清理时，要保证每一次清理时是干净的，就不会出现奇奇怪怪的错误
 
 >结论：
->	.PHONY:让 make 忽略源文件
-### Makefile 深层理解
+>	.PHONY:让 make 忽略源文件和可执行目标文件的 M 时间对比
+### Makefile 深层理解（推导过程）
 
 >机器只能识别 `.o` 文件，那为什么 `Makefile` 文件中，可以写成 `myproc:myproc.c` 呢？
 
