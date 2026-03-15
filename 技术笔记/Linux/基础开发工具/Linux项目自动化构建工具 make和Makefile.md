@@ -187,7 +187,7 @@ test:
 @echo $(RM)      # 输出 rm -f
 ```
 
-### 多文件 Makefile
+### 多文件 Makefile（手写）
 
 多文件的 `Makefile` 写法 与  上述单文件的 `Makefile` 写法不同，如下：将多个文件编译成 `.o`，统一链接
 ```bash
@@ -210,6 +210,30 @@ clean:
 ```
 
 不想每次 `make` 和 `make clean` 打印命令，可以用 `@` 来注释掉
+```bash
+BIN=proc.exe
+CC=gcc
+SRC=myproc.c
+OBJ=myproc.o
+LFLAGS=-o
+FLAGS=-c
+RM=rm -f
+
+$(BIN):$(OBJ)
+	@(CC) $(LFLAGS) $@ $^
+	@echo "linking ... $^ to $@"
+%.o:%.c # 把当前路径下所有的 .o/.c 依次展开
+	@$(CC) $(LFLAGS) $< # 对源文件依次进行编译
+	@echo "compling ... $< to $@"
+
+.PHONY:clean
+clean:
+	$(RM) $(OBJ) $(BIN)
+```
+
+### 多文件 Makefile（自动）
+
+每次使用 `Makefile` 都要手写一长串的命令，这就会失去 `Makefile` 文件的便利性，因此就有 `Linux` 自动推导
 ```bash
 BIN=proc.exe
 CC=gcc
