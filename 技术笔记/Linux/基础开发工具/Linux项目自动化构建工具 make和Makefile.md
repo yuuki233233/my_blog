@@ -159,8 +159,26 @@ rm -f *.i *.s *.o myproc
 - `myproc.i:myproc.c` 这里的 `myproc.c` 存在，依次出栈并执行
 - 从此就完成了从上到下入栈，从下到上执行的 `Makefile` 推导规则
 
-### Makefile 其他应用
+### Makefile 定义变量
 
 ```bash
-1 BIN=proc.exe 2 CC=gcc 3 SRC=myproc.c 4 FLAGS=-o 5 RM=rm -f 6 7 $(BIN):$(SRC) 8 $(CC) $(FLAGS) $@ $^ 9 .PHONY: 10 clean: 11 $(RM) $(BIN) 12 13 .PHONY:test 14 test: 15 @echo $(BIN) 16 @echo $(CC) 17 @echo $(SRC) 18 @echo $(FLAGS) 19 @echo $(RM)
+BIN=proc.exe
+CC=gcc
+SRC=myproc.c
+FLAGS=-o
+RM=rm -f
+
+$(BIN):$(SRC)
+$(CC) $(FLAGS) $@ $^ # $@ = BIN   $^ = SRC
+.PHONY:
+clean:
+$(RM) $(BIN)
+
+.PHONY:test
+test:
+@echo $(BIN)
+@echo $(CC)
+@echo $(SRC)
+@echo $(FLAGS)
+@echo $(RM)
 ```
