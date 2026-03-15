@@ -162,7 +162,7 @@ rm -f *.i *.s *.o myproc
 ### Makefile 定义变量
 
 `Linux` 中的 `Makefile` 里定义变量与C语言中的宏定义很像，本质是替换。C语言的语法为 `#default`、`Linux` 中则为 `$()`
-特殊语法：`$()` 替换内容、`$^` 表示源文件、`$@` 表示依赖文件
+特殊语法：`$()` 替换内容、`$^` 表示依赖文件、`$@` 表示目标文件
 ```bash
 # 定义的变量
 BIN=proc.exe
@@ -189,7 +189,7 @@ test:
 
 ### 多文件 Makefile
 
-多文件的 `Makefile` 写法 与  上述单文件的 `Makefile` 写法不同，如下
+多文件的 `Makefile` 写法 与  上述单文件的 `Makefile` 写法不同，如下：将多个文件编译成 `.o`，统一链接
 ```bash
 BIN=proc.exe
 CC=gcc
@@ -199,7 +199,34 @@ LFLAGS=-o
 FLAGS=-c
 RM=rm -f
 
-$(BIN) : $(OBJ)
+$(BIN):$(OBJ)
+	$(CC) $(LFLAGS) $@ $^
+%.o:%.c # 把当前路径下所有的 .o/.c 依次展开
+	$(CC) $(LFLAGS) $< # 对源文件依次进行编译
+
+.PHONY:clean
+clean:
+	$(RM) $(OBJ) $(BIN)
+```
+
+不想每次 `make` 和 `make clean` 打印命令，可以用 `@` 来注释掉
+```bash
+BIN=proc.exe
+CC=gcc
+SRC=myproc.c
+OBJ=myproc.o
+LFLAGS=-o
+FLAGS=-c
+RM=rm -f
+
+$(BIN):$(OBJ)
 	@(CC) $(LFLAGS) $@ $^
 	@echo "linking ... $^ to $@"
+%.o:%.c # 把当前路径下所有的 .o/.c 依次展开
+	@$(CC) $(LFLAGS) $< # 对源文件依次进行编译
+	@echo "compling ... $< to $@"
+
+.PHONY:clean
+clean:
+	$(RM) $(OBJ) $(BIN)
 ```
