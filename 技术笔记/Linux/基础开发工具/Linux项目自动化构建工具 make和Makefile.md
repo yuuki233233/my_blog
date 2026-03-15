@@ -131,6 +131,8 @@ myproc:myproc.c
 
 为什么给**删除**通行：主要是因为项目清理时，要保证每一次清理时是干净的，就不会出现奇奇怪怪的错误
 
+>结论：
+>	.PHONY:让 make 忽略源文件
 ### Makefile 深层理解
 
 >机器只能识别 `.o` 文件，那为什么 `Makefile` 文件中，可以写成 `myproc:myproc.c` 呢？
@@ -187,7 +189,7 @@ test:
 @echo $(RM)      # 输出 rm -f
 ```
 
-### 多文件 Makefile（手写）
+### 多文件 Makefile（手写链接）
 
 多文件的 `Makefile` 写法 与  上述单文件的 `Makefile` 写法不同，如下：将多个文件编译成 `.o`，统一链接
 ```bash
@@ -231,14 +233,15 @@ clean:
 	$(RM) $(OBJ) $(BIN)
 ```
 
-### 多文件 Makefile（自动）
+### 多文件 Makefile（自动链接）
 
-每次使用 `Makefile` 都要手写一长串的命令，这就会失去 `Makefile` 文件的便利性，因此就有 `Linux` 自动推导
+每次使用 `Makefile` 都要自己去用 `.o` 文件链接，如果 `.o` 文件特别多，这就会失去 `Makefile` 文件的便利性，因此就有**自动链接**的语法
 ```bash
 BIN=proc.exe
 CC=gcc
-SRC=myproc.c
-OBJ=myproc.o
+# SRC=$(shell ls *.c)
+SRC=$(wildcard *.c)   # 显示当前目录下所有的.c文件名
+OBJ=$(SRC:.c=.o)      # SRC内部的文件名.c -> 文件名.o
 LFLAGS=-o
 FLAGS=-c
 RM=rm -f
@@ -253,4 +256,16 @@ $(BIN):$(OBJ)
 .PHONY:clean
 clean:
 	$(RM) $(OBJ) $(BIN)
+	
+.PHONY:test
+test:
+	@echo $(SRC)
+	@echo $(OBJ)
 ```
+
+**对Makefile（自动链接）进行测试**
+```bash
+# 在lesson9中输入
+count=1; while [ $count -le 100 ]; do touch code${count}.c; let count++; done
+```
+可以看到创建了 100 个 `.c` 文件，此时使用 `make` 和 `make clean` 时，就可以看到创建 `.o` 和 `链接` 的输出
