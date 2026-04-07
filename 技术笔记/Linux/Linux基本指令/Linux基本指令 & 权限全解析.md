@@ -171,9 +171,9 @@ chmod 644 file.txt     # rw-r--r--
 
 ### sudo / su / root
 
-- su -：切换到 root，需要 root 密码
-- sudo：临时提权，需要当前用户密码（推荐）
-- root：无所不能
+- `su -`：切换到 root，需要 root 密码
+- `sudo`：临时提权，需要当前用户密码（推荐）
+- `root`：无所不能
 
 **小实验**：
 
@@ -181,6 +181,7 @@ chmod 644 file.txt     # rw-r--r--
 sudo touch /root/secret.txt
 sudo chown $USER:$USER /root/secret.txt   # 改成你的
 ```
+
 ## 6. 压缩与解压（最常用两种格式）
 
 ### zip / unzip（需安装）
