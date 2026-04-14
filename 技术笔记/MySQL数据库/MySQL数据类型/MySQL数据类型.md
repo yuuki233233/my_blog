@@ -129,3 +129,218 @@ varchar存储的真实长度：
 - 变长的磁盘空间比较节省，但是效率低
 - 定长的意义是，直接开辟好对应的空间
 - 变长的意义是，在不超过自定义范围的情况下，用多少，开辟多少
+
+### 日期和时间类型
+
+- `date`：日期格式 `'XXXX-YY-ZZ'` 占用三个字节
+- `datetime`：时间日期格式 `XXXX-YY-ZZ HH:II:SS` 表示范围从 `1000` 到 `9999`，占用八字节
+- `timestamp`：时间戳，格式与 `datetime` 一致，占用四字节，日期随表的更改自动更新
+
+```mysql
+# 创建表
+mysql> use test;
+Database changed
+mysql> create table t1(
+    -> d1 date,
+    -> d2 datetime,
+    -> d3 timestamp
+    -> );
+Query OK, 0 rows affected (0.00 sec)
+
+# 显示表
+mysql> show tables;
++----------------+
+| Tables_in_test |
++----------------+
+| t1             |
++----------------+
+1 row in set (0.00 sec)
+
+# 插入数据
+mysql> insert into t1 (d1, d2) values ('2000-01-01', '2020-01-01 14:23:00');
+Query OK, 1 row affected (0.00 sec)
+
+# 查看数据
+mysql> select * from t1;
++------------+---------------------+---------------------+
+| d1         | d2                  | d3                  |
++------------+---------------------+---------------------+
+| 2000-01-01 | 2020-01-01 14:23:00 | 2026-04-13 19:48:41 |
++------------+---------------------+---------------------+
+1 row in set (0.00 sec)
+
+# 更新数据
+mysql> update t1 set d1='2011-01-01';
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+# 时间戳更新
+mysql> select * from t1;
++------------+---------------------+---------------------+
+| d1         | d2                  | d3                  |
++------------+---------------------+---------------------+
+| 2011-01-01 | 2020-01-01 14:23:00 | 2026-04-13 19:51:11 |
++------------+---------------------+---------------------+
+1 row in set (0.00 sec)
+```
+
+### enum和set类型
+
+#### enum
+
+- 语法
+```
+对象 enum('选项1', '选项2'...);
+```
+
+- 可以通过**选项的值**插入，也可以通过对应的**数字编号**进行插入（选项1 -> 1，选项2 -> 2）
+- **只能选择插入一个选项**，不能插入多个或不存在的值
+
+#### set
+
+- 语法
+```
+对象 set('选项1', '选项2'...);
+```
+
+- 通过 **选项的值 和 位图** 插入，不能通过数字编号进行插入
+- 位图：由二进制的方式
+	- 如果插入 1 这个数字，位图为 0001 （末尾的 1 = 选项1）
+	- 如果插入 3 这个数字，位图为 0011 （末尾的 11 = 选项1 选项2）
+- 可插入多个选项
+
+#### 案例
+
+```mysql
+mysql> create table votes(
+    -> username varchar(30),
+    -> gender enum('男','女'),
+    -> bobby set('C/C++','Java','Python','C#'));
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> desc votes;
++----------+-----------------------------------+------+-----+---------+-------+
+| Field    | Type                              | Null | Key | Default | Extra |
++----------+-----------------------------------+------+-----+---------+-------+
+| username | varchar(30)                       | YES  |     | NULL    |       |
+| gender   | enum('男','女')                   | YES  |     | NULL    |       |
+| bobby    | set('C/C++','Java','Python','C#') | YES  |     | NULL    |       |
++----------+-----------------------------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+```
+
+#### 插入数据
+
+- 直接插入数据
+```mysql
+mysql> insert into votes values('myself','男','C/C++');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into votes values('peter','男','C/C++,Python');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into votes values('mitte','女','Java,Python');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from votes;
++----------+--------+--------------+
+| username | gender | bobby        |
++----------+--------+--------------+
+| myself   | 男     | C/C++        |
+| peter    | 男     | C/C++,Python |
+| mitte    | 女     | Java,Python  |
++----------+--------+--------------+
+3 rows in set (0.00 sec)
+```
+
+- 通过数字和位图插入数据
+```mysql
+smysql> insert into votes values('anna', 2, 1);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into votes values('mia', 2, 2);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into votes values('david', 1, 3);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into votes values('max', 1, 4);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into votes values('list', 1, 8);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into votes values('string', 1, 7);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from votes;
++----------+--------+-------------------+
+| username | gender | bobby             |
++----------+--------+-------------------+
+| myself   | 男     | C/C++             |
+| peter    | 男     | C/C++,Python      |
+| mitte    | 女     | Java,Python       |
+| anna     | 女     | C/C++             |
+| mia      | 女     | Java              |
+| david    | 男     | C/C++,Java        |
+| max      | 男     | Python            |
+| list     | 男     | C#                |
+| string   | 男     | C/C++,Java,Python |
++----------+--------+-------------------+
+7 rows in set (0.00 sec)
+```
+
+#### 查询数据
+
+- 语法：查对应数据
+```
+select * from [表] where [对象] = [数据]
+```
+
+```mysql
+mysql> select * from votes where bobby = 'C/C++';
++----------+--------+-------+
+| username | gender | bobby |
++----------+--------+-------+
+| myself   | 男     | C/C++ |
+| anna     | 女     | C/C++ |
++----------+--------+-------+
+2 rows in set (0.00 sec)
+```
+
+- 语法：查集合内的数据
+```
+select * from [表] where find_in_set('数据', '对象');
+```
+
+```
+select * from [表] where find_in_set('数据', '对象') and find_in_set('另外的数据', '对象');
+```
+
+- 查询喜爱 `C/C++` 的人
+```mysql
+mysql> select * from votes where find_in_set ('C/C++', bobby);
++----------+--------+-------------------+
+| username | gender | bobby             |
++----------+--------+-------------------+
+| myself   | 男     | C/C++             |
+| peter    | 男     | C/C++,Python      |
+| anna     | 女     | C/C++             |
+| david    | 男     | C/C++,Java        |
+| string   | 男     | C/C++,Java,Python |
++----------+--------+-------------------+
+5 rows in set (0.00 sec)
+```
+
+- 查询喜爱 `C/C++、Java` 的人
+```
+mysql> select * from votes where find_in_set ('C/C++', bobby) and find_in_set ('Java', bobby);
+
++----------+--------+-------------------+
+| username | gender | bobby             |
++----------+--------+-------------------+
+| david    | 男     | C/C++,Java        |
+| string   | 男     | C/C++,Java,Python |
++----------+--------+-------------------+
+2 rows in set (0.00 sec)
+```
