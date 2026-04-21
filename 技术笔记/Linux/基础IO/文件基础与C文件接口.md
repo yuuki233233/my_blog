@@ -223,6 +223,9 @@ extern FILE *stderr;
 
 ### 打开文件的方式
 
+- r：打开文件，只读取文件数据
+- m：先将文件数据清空，再进行数据插入
+- a：保留文件数据，从尾端追加数据
 ```c
 DESCRIPTION
        The fopen() function opens the file whose name is the string pointed to by path and associates a stream with it.
