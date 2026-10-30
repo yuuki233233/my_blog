@@ -40,7 +40,7 @@ cd ~             # 家目录
 cd -             # 上一个目录
 ```
 
-### ls - 列出目录内容（最常用命令！）
+### ls - 列出目录内容
 
 ```Bash
 ls               # 列出当前目录可见文件
@@ -79,7 +79,7 @@ mkdir newdir
 mkdir -p a/b/c/d     # 递归创建多级目录
 ```
 
-### rm - 删除文件/目录（小心！）
+### rm - 删除文件/目录
 
 ```Bash
 rm file.txt          # 删除文件
@@ -142,7 +142,7 @@ find . -type f -size +10M         # 找当前目录大于10MB的文件
 find . -mtime -7                  # 7天内修改的文件
 ```
 
-### grep - 文本搜索（神器！）
+### grep - 文本搜索（神器）
 
 ```Bash
 grep "error" log.txt              # 查找包含 error 的行
@@ -154,46 +154,60 @@ grep -n "warning" *.log           # 显示行号
 ## 5. 权限核心解析（重点）
 ### rwx 权限本质
 
-| 对象  | r（读）     | w（写）          | x（执行/进入）     | 决定能否删除？ |
-| --- | -------- | ------------- | ------------ | ------- |
-| 文件  | 查看内容     | 修改内容          | 执行脚本/二进制     | 否       |
-| 目录  | ls 查看文件名 | 创建/删除/重命名里面文件 | cd 进入、访问里面文件 | 是（w 决定） |
+文件访问者二分三类：`u`（所有者）、`g`（同组用户）、`o`（其他用户）
+权限分三种：`r`（读）、`w`（写）、`x`（执行）
 
-**关键结论**：文件能不能被删，只看它**所在目录**有没有 w 权限
+| 对象  | r（读）     | w（写）          | x（执行/进入） | 决定能否删除？ |
+| --- | -------- | ------------- | -------- | ------- |
+| 文件  | 查看内容     | 修改内容          | 执行脚本/二进制 | 否       |
+| 目录  | ls 查看文件名 | 创建/删除/重命名里面文件 | cd 进入目录  | 是（w 决定） |
+
+**关键结论**：
+1. 能不能删除文件，只看它**所在目录**有没有 `w` 权限
+2. 如果目录没有 `x` 权限，你连 `cd` 都进不去；如果没有 `r` 权限，连 `ls` 都看不了
 
 ### chmod 修改权限
 
 符号法：
 ```Bash
-chmod u+x script.sh
-chmod go-rwx private/
+chmod u+x script.sh      # 给所有者加执行权
+chmod go-rwx private/    # 剥夺同组和其他人所有权限
 ```
 
 数字法：
 ```Bash
+# (r=4, w=2, x=1)
 chmod 755 script.sh    # rwxr-xr-x
 chmod 644 file.txt     # rw-r--r--
 ```
 
 ### umask 计算
 
-默认 umask 002：
-- 文件：666 & 775 = 664（rw-rw-r--）
-- 目录：777 & 775 = 775（rwxrwxr-x）
+默认 umask 为 022（root）或 002（普通用户）
+实际创建权限 = `最大默认权限 & ~umask`
+比如 umask 002：
+- 文件：666 & 775（~002） = 664（rw-rw-r--）
+- 目录：777 & 775（~002） = 775（rwxrwxr-x）
 
 **为什么 umask 002？** 大部分文件不需要执行权限（源代码、日志、配置文件），所以默认去掉 o 的 x
 
-### sudo / su / root
+### 高级权限：粘滞位 (Sticky Bit)
 
-- `su -`：切换到 root，需要 root 密码
-- `sudo`：临时提权，需要当前用户密码（推荐）
-- `root`：无所不能
+如果 `/home` 目录权限是 `777`，任何人都能删别人创建的文件。这太不科学了  
+解决办法：给目录加上**粘滞位** `chmod +t /home` (或者 1777)。  
+**效果**：该目录下的文件，只有文件所有者、目录所有者或 root 才能删除。  
+(注：系统自带的 `/tmp` 目录默认就有粘滞位)
+
+### sudo / su
+
+- `su -`：切换用户（默认切 root），需要目标用户密码
+- `sudo`：临时借用 root 权限执行单条命令，需要自己密码
 
 **小实验**：
 
 ```Bash
 sudo touch /root/secret.txt
-sudo chown $USER:$USER /root/secret.txt   # 改成你的
+sudo chown $USER:$USER /root/secret.txt   # 改成自己的
 ```
 
 ## 6. 压缩与解压（最常用两种格式）
@@ -211,7 +225,7 @@ zip -r myproject.zip myproject/
 unzip myproject.zip -d destination/
 ```
 
-### tar（Linux 自带，最推荐）
+### tar（Linux 自带，推荐）
 
 ```Bash
 # 打包 + gzip 压缩（最常用 .tar.gz）
@@ -229,11 +243,8 @@ tar tvf backup.tar.gz
 
 ## 7. 其他高频小工具
 
-- `man 命令` → 查看手册（按 q 退出）
+- `man 命令` → 查看手册（按 q 退出）。遇到系统调用 `man 2 fork`，库函数 `man 3 printf`
 - `alias ll='ls -lah' `→ 设置快捷别名（写到 ~/.bashrc 永久生效）
-- `cal `→ 显示日历
-- `bc` → 简单计算器
-- `uname -a` → 查看系统信息
 - `tree` → 显示目录树状结构（需安装：`sudo apt install tree`）
     - 推荐：`tree -C -L 3`（彩色 + 3 层）
 - `df/du 磁盘空间`
@@ -241,7 +252,7 @@ tar tvf backup.tar.gz
 		df -h           # 人类可读磁盘使用情况
 		du -sh /dir     # 查看目录总大小
 	  ```
-- `ps/top/htop 进程查看`
+- `ps/top/htop 查看系统运行进程（类似 Windows 任务管理器）
 	- ```Bash
 		ps aux          # 查看所有进程
 		top             # 实时监控（q 退出）
@@ -252,12 +263,13 @@ tar tvf backup.tar.gz
 		kill 12345      # 温和终止
 		kill -9 12345   # 强制杀死
 	  ```
-- `scp 远程复制文件`
+- `scp 跨网络远程复制文件`
 	- ```Bash
 		scp file.txt user@remote:/path/      # 本地 → 远程
 		scp user@remote:/path/file.txt .     # 远程 → 本地
 	  ```
-## 安全小贴士（新手必看）
+
+## 安全小贴士
 
 1. 永远不要随便用 `rm -rf /` 或 `rm -rf *`（尤其是 sudo）
 2. 删除前先用 `ls` 确认目标
@@ -266,5 +278,3 @@ tar tvf backup.tar.gz
 
 代码仓库：[https://github.com/yuuki233233/cpp-learning-journey](https://github.com/yuuki233233/cpp-learning-journey) 
 CSDN 主页：[https://blog.csdn.net/yuuki233233](https://blog.csdn.net/yuuki233233)
-
-欢迎评论交流，一起卷 Linux ！

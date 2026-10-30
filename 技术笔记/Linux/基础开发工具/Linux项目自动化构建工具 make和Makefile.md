@@ -1,58 +1,103 @@
-## 为什么有 make 和 makefile
+# # 自动化构建：Make 与 Makefile
 
-- 一个工程的源文件不计其数，按类型、功能、模块分别放在若干个目录中，`makefile` 定义了一个系列的规则来指定，哪些文件需要先编译，哪些文件需要后编译，哪些文件需要重新编译，甚至进行更复杂的功能操作
-- **makefile 好处**：自动化编译（一旦写好，只需一个 `make` 命令让整个工程完全自动编译）
-- **make（命令）**：解释 `makefile` 中指令的命令工具
+如果一个项目有 100 个 `.c` 文件，每次改一个都要手敲 100 遍 `gcc` 吗？当然不！这就是 `make` 工具和 `Makefile` 文件的作用
 
-## make 和 makefile 的基础使用
-可写成 `makefile` 或 `Makefile`
+## Makefile 的核心规则
 
-### 创建文件
-先创建一个目录，在目录里分别创建 `Makefile` 与 `myproc.c` 2个文件
-```bash
-mkdir lesson9
-cd lesson9
+```shell
+# Makefile
 
-# lesson9
-touch Makefile myproc.c
+# 目标文件:依赖文件
+myproc: myproc.c           # 可以是多个依赖文件
+	gcc -o myproc myproc.c # 第二行必须以tap建为开头，以什么方式编译
 ```
-`myproc.c` 里只有输出 `hello world` 的代码
+_(⚠️注意：第二行必须用 Tab 键缩进，不能用空格！)_
 
-进入 `Makefile` 中，往里面写入下列命令
+当你执行 `make` 命令时，它会寻找当前目录下的 `Makefile`，并执行第一条规则
+
+## 为什么不能多次执行 make
+
+执行一次 `make` 生成 `myproc` 后，如果没修改过 `myproc.c`，再次 `make` 会提示 已是最新
+
+- **原理**：`make` 会比较 **目标文件** 和 **依赖文件** 的修改时间。如果 `myproc.c`（依赖）比 `myproc`（目标）老，说明源码没改过，`make` 就会跳过编译以节省时间
+
+## 伪目标 `.PHONY` 与清理规则
+
+通常我们需要一个清理命令（`make clean`），为了防止目录下正好有个文件叫 `clean` 导致规则冲突，我们使用 `.PHONY` 声明它为**伪目标**，让它无视时间对比，永远被执行
+
 ```bash
 # Makefile
 
-# 目标文件:依赖文件   myproc.c (怎么形成)-> myproc
-myproc:myproc.c            # 可以是多个依赖文件
-	gcc -o myproc myproc.c # 第二行必须以tap建为开头，以什么方式编译
-```
+myproc:myproc.c
+	gcc -o myproc myproc.c
 
-输入 `make` 指令，自动输出一个 `myproc` 文件
-```bash
-# lesson9
-
-make # 出现 gcc -o myproc myproc.c (也就是我们在 Makefile 中写入的)
-```
-此时出现一个 `myproc` 文件，`./myproc` 输出 `hello world`
-
-### 删除文件
-
-上面执行了创建文件的命令，那也可以执行删除的命令，进入 `Makefile`
-```bash
-# Makefile
-
-myproc:myproc.c            # 可以是多个依赖文件
-	gcc -o myproc myproc.c # 第二行必须以tap建为开头，以什么方式编译
 .PHONY:clean # .PHONY:修饰符  修饰 clean
 clean:       # 依赖为空，语法规则一样
 	rm -f myproc
 ```
 
-退出  `Makefile`
 ```bash
+# 命令行中执行，清除文件
 make clean # 出现 rm -f myproc (也就是我们在 Makefile 中写入的 clean)
 ```
-此时 `myproc` 文件，已被删除
+
+## Makefile 定义变量
+
+`Linux` 中的 `Makefile` 里定义变量与C语言中的宏定义很像，本质是替换。C语言的语法为 `#default`、`Linux` 中则为 `$()`
+特殊语法：`$()` 替换内容、`$^` 表示依赖文件、`$@` 表示目标文件
+```bash
+# 定义的变量
+BIN=proc.exe
+CC=gcc
+SRC=myproc.c
+FLAGS=-o
+RM=rm -f
+
+# 替换$()
+$(BIN):$(SRC)
+$(CC) $(FLAGS) $@ $^ # $@ = BIN   $^ = SRC
+.PHONY:
+clean:
+$(RM) $(BIN)
+
+.PHONY:test
+test:
+@echo $(BIN)     # 输出 proc.exe
+@echo $(CC)      # 输出 gcc
+@echo $(SRC)     # 输出 myproc.c
+@echo $(FLAGS)   # 输出 -o
+@echo $(RM)      # 输出 rm -f
+```
+
+
+## Makefile 进阶：变量与自动推导
+
+在大型工程中，我们使用变量和通配符来简化编写：
+
+- `$@`：代表目标文件名（如 `myproc`）
+- `$^`：代表所有依赖文件名（如 `myproc.c`）
+- `$<`：代表第一个依赖文件名
+- `$(wildcard *.c)`：获取当前目录下所有的 `.c` 文件
+
+```shell
+# Makefile
+
+BIN = proc.exe
+CC = gcc
+SRC = $(wildcard *.c)
+OBJ = $(SRC:.c=.o)
+
+$(BIN): $(OBJ)
+	@$(CC) -o $@ $^
+%.o: %.c
+	@$(CC) -c $<
+
+.PHONY: clean
+clean:
+	rm -f $(OBJ) $(BIN)
+```
+
+## Makefile 扩展
 
 ### Makefile 顺序问题
 
@@ -84,11 +129,8 @@ myproc:myproc.c
 ```
 会因为顺序问题，执行 `make` 时就变成 `rm -f myproc`，**但我们都会把创建文件放在第一个**
 
-### 文件属性 及 时间问题
 
-在执行多个 `make` 时，只有第一次是通过的，其余都报错，那是因为两个文件 `myproc.c` `myproc` 的属性问题而导致的
-
-#### 文件信息
+### 文件信息
 
 我们用 `stat myproc.c`，能看到文件的基本信息，包括：**查看时间、修改时间、属性修改时间**
 ```bash
@@ -106,36 +148,7 @@ Birth: -
 | 文件信息 | Access            | Modify | Change                           |
 | ---- | ----------------- | ------ | -------------------------------- |
 | 修改   | cat（只对第一次 cat 有效） | vim    | vim、chmod（modify 更改，Change也跟着更改） |
-#### Modify 时间问题
 
-- 不能  `make` 多次，与 `Modify` 的修改时间息息相关
-- 想用多次 `make` 需要更改 `Modify` 的修改时间
-
-#### 为什么不被执行多次 make
-
-1. 默认老代码不做重新编译（当有1000份文件时，只修改了10份文件，就只 `make` 修改过的文件，若` make 1000份文件`，对性能会有消耗）
-2. 怎么不做重新编译的？（每个文件都有不同的修改时间(Modify)，以 `myproc` 和 `myproc.c` 为例：）
-	- 当 `myproc.c` 时间比 `myproc` 晚时，`make` 时就不会执行，因为当成 `myproc.c` 是老文件，没有被修改
-	- 要是 `myproc.c` 被修改时，`myproc.c` 时间比 `myproc` 早，`make` 时就会执行，因为当成 `myproc.c` 是新文件，已被修改
-
-#### .PHONY 伪目标使用
-
-参考以下 `Makefile` 文件
-```bash
-.PHONY:clean
-clean:
-	rm -f myproc
-
-.PHONY:clean
-myproc:myproc.c
-	gcc -o myproc myproc.c
-```
-会发现可以执行多次 `make`，是因为 `.PHONY` 类似一张通行证，可以一直反复往来一个地方，所以可以无视 `myproc` 文件，执行多次 `make`
-
-为什么给**删除**通行：主要是因为项目清理时，要保证每一次清理时是干净的，就不会出现奇奇怪怪的错误
-
->结论：
->	.PHONY:让 make 忽略源文件和可执行目标文件的 M 时间对比
 ### Makefile 深层理解（推导过程）
 
 >机器只能识别 `.o` 文件，那为什么 `Makefile` 文件中，可以写成 `myproc:myproc.c` 呢？
@@ -164,33 +177,6 @@ rm -f *.i *.s *.o myproc
 - `myproc.i:myproc.c` 这里的 `myproc.c` 存在，依次出栈并执行
 - 从此就完成了从上到下入栈，从下到上执行的 `Makefile` 推导规则
 
-### Makefile 定义变量
-
-`Linux` 中的 `Makefile` 里定义变量与C语言中的宏定义很像，本质是替换。C语言的语法为 `#default`、`Linux` 中则为 `$()`
-特殊语法：`$()` 替换内容、`$^` 表示依赖文件、`$@` 表示目标文件
-```bash
-# 定义的变量
-BIN=proc.exe
-CC=gcc
-SRC=myproc.c
-FLAGS=-o
-RM=rm -f
-
-# 替换$()
-$(BIN):$(SRC)
-$(CC) $(FLAGS) $@ $^ # $@ = BIN   $^ = SRC
-.PHONY:
-clean:
-$(RM) $(BIN)
-
-.PHONY:test
-test:
-@echo $(BIN)     # 输出 proc.exe
-@echo $(CC)      # 输出 gcc
-@echo $(SRC)     # 输出 myproc.c
-@echo $(FLAGS)   # 输出 -o
-@echo $(RM)      # 输出 rm -f
-```
 
 ### 多文件 Makefile（手写链接）
 
