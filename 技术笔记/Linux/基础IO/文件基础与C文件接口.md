@@ -15,7 +15,7 @@
 ---
 
 
-## # 二、 C文件接口回顾
+# 二、 C文件接口回顾
 
 C 语言默认会打开三个输入输出流（类型均为 `FILE*`）：
 *   `stdin`：标准输入（键盘，对应文件描述符 0）
@@ -31,7 +31,7 @@ C 语言默认会打开三个输入输出流（类型均为 `FILE*`）：
 
 ### 2.2 基础实战
 
-#### 1. write 接口
+#### 1. fwrite 接口
 
 ```c
 #include <stdio.h>
@@ -68,7 +68,7 @@ fprintf(stdout, "hello fprintf\n");
 >[!note] **系统怎么知道你的程序在哪个路径下创建了文件？**  
 可以通过 `ls /proc/[进程id] -l` 查看，其中 `cwd` 指向当前进程的运行目录（Current Working Directory）。`fopen("myfile", "w")` 默认在当前 `cwd` 下创建
 
-#### 2. read 接口
+#### 2. fread 接口
 
 ```c
 #include <stdio.h>
