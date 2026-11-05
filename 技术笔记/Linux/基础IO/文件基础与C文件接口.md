@@ -31,6 +31,8 @@ C 语言默认会打开三个输入输出流（类型均为 `FILE*`）：
 
 ### 2.2 基础实战
 
+#### 1. write 接口
+
 ```c
 #include <stdio.h>
 #include <string.h>
@@ -55,83 +57,18 @@ int main() {
 }
 ```
 
-
+如果想把信息输入到显示器，有三种常见方法：
 ```c
-#include <stdio.h>
-
-int main()
-{
-	FILE *fp = fopen("myfile", "w");
-	if(!fp)
-	{
-		printf("fopen error!\n");
-	}
-	while(1);
-	fclose(fp); // 关闭文件，但也不影响
-	
-	return 0;
-}
+// const char *msg = "hello world!\n";
+fwrite(msg, strlen(msg), 1, stdout);
+printf("hello printf\n");
+fprintf(stdout, "hello fprintf\n");
 ```
 
-此时创建 myfile 文件，没有写入任何数据
+>[!note] **系统怎么知道你的程序在哪个路径下创建了文件？**  
+可以通过 `ls /proc/[进程id] -l` 查看，其中 `cwd` 指向当前进程的运行目录（Current Working Directory）。`fopen("myfile", "w")` 默认在当前 `cwd` 下创建
 
-### 写文件
-
-```c
-NAME
-       fread, fwrite - binary stream input/output
-
-SYNOPSIS
-       #include <stdio.h>
-
-       size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
-
-       size_t fwrite(const void *ptr, size_t size, size_t nmemb,
-                     FILE *stream);
-
-```
-
-```c
-#include <stdio.h>
-#include <string.h>
-
-int main()
-{
-	FILE *fp = fopen("myfile", "w");
-	if(!fp)
-	{
-		printf("fopen error!\n");
-	}
-	
-	const char *msg = "hello world\n";
-	int count = 5;
-	while(count--)
-	{
-		fwrite(msg, strlen(msg), 1, fp);
-	}
-	
-	fclose(fp);
-	
-	return 0;
-}
-```
-
-此时创建 myfile 文件，可以看到里面写入了 5行 hello world
-
-### 读文件
-
-```c
-NAME
-       fread, fwrite - binary stream input/output
-
-SYNOPSIS
-       #include <stdio.h>
-
-       size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
-
-       size_t fwrite(const void *ptr, size_t size, size_t nmemb,
-                     FILE *stream);
-```
+#### 2. read 接口
 
 ```c
 #include <stdio.h>
@@ -168,6 +105,8 @@ int main()
 	return 0;
 }
 ```
+
+#### 3. 用读写接口实现 cat 命令
 
 实现简单 `cat` 命令：
 ```c
@@ -208,60 +147,4 @@ int main(int argc, char* argv[])
 
 ```
 ./可执行程序 追加文件
-```
-
-### 输出信息到显示器的三种方法
-
-```c
-#include <stdio.h>
-#include <string.h>
-
-int main()
-{
-	const char *msg = "hello world!\n";
-	fwrite(msg, strlen(msg), 1, stdout);
-	
-	printf("hello world!\n");
-	
-	fprintf(stdout, "hello world!\n");
-	
-	return 0;
-}
-```
-
-### stdin stdout stderr
-
-- C默认打开三个输入输出流，分别是 stdin，stdout，stderr
-- 这三个流的类型都是 `FILE*`，`fopen` 返回值类型，文件指针
-```c
-#include <stdio.h>
-
-extern FILE *stdin;
-extern FILE *stdout;
-extern FILE *stderr;
-```
-
-### 打开文件的方式
-
-- r：打开文件，只读取文件数据
-- m：先将文件数据清空，再进行数据插入
-- a：保留文件数据，从尾端追加数据
-```c
-DESCRIPTION
-       The fopen() function opens the file whose name is the string pointed to by path and associates a stream with it.
-
-       The argument mode points to a string beginning with one of the following sequences (possibly followed by additional characters, as described below):
-
-       r      Open text file for reading.  The stream is positioned at the beginning of the file.
-
-       r+     Open for reading and writing.  The stream is positioned at the beginning of the file.
-
-       w      Truncate file to zero length or create text file for writing.  The stream is positioned at the beginning of the file.
-
-       w+     Open for reading and writing.  The file is created if it does not exist, otherwise it is truncated.  The stream is positioned at the beginning of the file.
-
-       a      Open for appending (writing at end of file).  The file is created if it does not exist.  The stream is positioned at the end of the file.
-
-       a+     Open  for reading and appending (writing at end of file).  The file is created if it does not exist.  The initial file position for reading is at the beginning of the file, but output is always appended to the
-              end of the file.
 ```
