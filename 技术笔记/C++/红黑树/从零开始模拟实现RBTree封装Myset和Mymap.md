@@ -12,7 +12,7 @@
 - **问题**：既然已经确定了 `_rb_tree_node` 中的类型，那么为什么还要写模板参数 `key` ？
 	- 对 **insert** ：`set` 插入的是 `key` 对象，`map` 插入的是 `pair` 对象，可以用 `Value` 模板参数
 	- 对 **find** ：`set` 查找的是 `key` 对象，`map` 查找的是 `key`。由于在 `map` 中， `Value` 是 `pair` 类型，所以不能用 `Value` 模板参数，需额外添加个 `key` 的模板参数
-![](图片/QQ20260213-164357.png)
+![](../../../图片/QQ20260213-164357.png)
 **总结**：
  >- **set**：存储 `key`，比较直接用` `key``。
  >- **map**：存储 `pair`，比较只看 `first(key)`，不能直接用 `pair` 比较。
@@ -294,7 +294,7 @@ bool Insert(const T& data)
 - set 的 iterator 不支持修改，把 set 的第二个模板参数改成 const K 即可，`RBTree<K,const K, SetKeyOfT> _t;`需要注意有坑，详细部分看代码解析
 - map 的 iterator 不支持修改 key，但是可以修改 value，把第二个模板参数 pair 的第一个参数改成 const K 即可，`RBTree<K, pair<const K, V>, MapKeyOfT> _t;`
 - 还要很多重要的细节，如`1.支持[]的插入、查找和修改  2.反向迭代器的注意事项  3.模板内嵌的处理`等等，请看下列从零开始模拟实现RBTree封装Myset和Mymap
-- ![](图片/一颗红黑树.png)
+- ![](../../../图片/一颗红黑树.png)
 ```cpp
 /*
 * 考虑到有 iterator 和 const_iterator 两种迭代器
