@@ -23,7 +23,7 @@
 
 inode 内部存在 `__le32 i_block[EXT2_N_BLOCKS]; /* Pointers to blocks */`，`EXT2_N_BLOCK = 15`，用来进行 inode 和 block 映射。这样文件 = 内容 ＋ 属性，都能被找到
 
-![](../../../图片/inode 和 datablock 映射.png)
+![](../../../图片/Ext2文件系统与Inode机制-inode与datablock映射.png)
 
 > **inode 逻辑结构的核心结论**：
 > 文件名不存 inode 里，inode 里存的是一堆指针（`i_block[15]`），指向数据区里真正的数据块。我们平时用 `ls -i` 看到的数字，就是这个文件在 Inode Table 里的下标！
@@ -59,7 +59,7 @@ inode 内部存在 `__le32 i_block[EXT2_N_BLOCKS]; /* Pointers to blocks */`，`
 263466 abc
 ```
 
-![](../../../图片/文件在底层的创建过程 1.png)
+![](../../../图片/Ext2文件系统与Inode机制-创建文件abc的过程.png)
 
 创建一个新文件主要有一下 4 个过程
 1. **存储属性**：内核先找到一个空闲的 `inode` 节点。内核记录文件信息。
