@@ -31,6 +31,25 @@
 
 ## 内核如何组织
 
+```c
+/* one msq_queue structure for each present queue on the system */
+struct msg_queue {
+    struct kern_ipc_perm q_perm;
+    time64_t q_stime;       /* last msgsnd time */
+    time64_t q_rtime;       /* last msgrcv time */
+    time64_t q_ctime;       /* last change time */
+    unsigned long q_cbytes;     /* current number of bytes on queue */
+    unsigned long q_qnum;       /* number of messages in queue */
+    unsigned long q_qbytes;     /* max number of bytes on queue */
+    struct pid *q_lspid;        /* pid of last msgsnd */
+    struct pid *q_lrpid;        /* last receive pid */
+
+    struct list_head q_messages;
+    struct list_head q_receivers;
+    struct list_head q_senders;
+} __randomize_layout;
+```
+
 内核中对应结构体 `struct msg_queue`，它包含：
 
 - `kern_ipc_perm q_perm`：公共头部（权限、key，见 [[内核如何统一管理 IPC 资源]]）
