@@ -13,8 +13,6 @@ int semget(key_t key, int nsems, int semflg);     // 信号量
 `shmctl` / `msgctl` / `semctl` 也是同样的风格。
 它们都用 `key` 定位，都返回一个 `int` 类型的 id，都有 `IPC_CREAT` / `IPC_EXCL` / `IPC_RMID`。
 
-**这不是巧合，而是内核有意为之的统一抽象。**
-
 ## 三个"子类"结构体
 
 内核里，三种资源各有一个重量级结构体：
