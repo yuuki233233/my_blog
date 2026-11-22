@@ -124,6 +124,8 @@ ipc_id_ary.p[]:
         返回用户态
 ```
 
+![](../../../图片/进程统一管理IPC资源.png)
+
 `shmat(shmid, ...)` 走的是同一条路，只是最后强转成 `struct shmid_kernel*`，然后去操作 `shm_file`、建立页表映射。
 
 ## 这就是 C 语言的"多态"
